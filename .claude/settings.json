@@ -54,13 +54,5 @@
   },
   "enabledPlugins": {
     "aidlc@aidlc": true
-  },
-  "extraKnownMarketplaces": {
-    "aidlc": {
-      "source": {
-        "source": "github",
-        "repo": "prashantsharma18/aidlc"
-      }
-    }
   }
 }
