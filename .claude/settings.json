@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "deny": [
+      "Read(.env)",
+      "Read(.env.*)",
+      "Read(**/.env)",
+      "Read(**/.env.*)",
+      "Read(**/*.pem)",
+      "Read(**/*.key)",
+      "Read(secrets/**)",
+      "Read(~/.ssh/**)",
+      "Read(~/.aws/**)",
+      "Read(~/.kube/**)",
+      "Edit(../stories/**)",
+      "Bash(git push*)",
+      "Bash(kubectl*)",
+      "Bash(k3d*)",
+      "Bash(helm install*)",
+      "Bash(helm upgrade*)",
+      "Bash(helm uninstall*)",
+      "Bash(helm rollback*)"
+    ],
+    "ask": [
+      "Bash(npm install*)",
+      "Bash(pip install*)",
+      "Bash(pnpm add*)",
+      "Bash(pnpm -C web add*)",
+      "Bash(dotnet add package*)",
+      "Bash(dotnet add * package*)",
+      "Bash(dotnet tool install*)",
+      "Bash(dotnet new install*)"
+    ],
+    "disableBypassPermissionsMode": "disable",
+    "additionalDirectories": [
+      "../stories"
+    ],
+    "allow": [
+      "Read(~/.claude/plugins/cache/aidlc/**)",
+      "Read(~/.claude/plugins/marketplaces/aidlc/**)"
+    ]
+  },
+  "sandbox": {
+    "enabled": true,
+    "filesystem": {
+      "denyRead": [
+        ".env",
+        ".env.*",
+        "~/.ssh",
+        "~/.aws",
+        "~/.kube"
+      ]
+    }
+  },
+  "enabledPlugins": {
+    "aidlc@aidlc": true
+  },
+  "extraKnownMarketplaces": {
+    "aidlc": {
+      "source": {
+        "source": "github",
+        "repo": "prashantsharma18/aidlc"
+      }
+    }
+  }
+}
