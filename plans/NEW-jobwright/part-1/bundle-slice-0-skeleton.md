@@ -14,8 +14,8 @@ GOAL        Pin every direct dependency to new-system.md's Pinned versions with 
             placeholders, add the API's /health/live (K2) with its test, the web's first unit test, the module
             boundary smoke test (ADR 0001, U13), and scripts/check.sh with test, lint and build. Ends with
             `scripts/check.sh lint && scripts/check.sh test` green and check.sh build green without the docker builds.
-INTENT      spec v3 (approved 2026-11-09); clarifications K1 to K4 in plan.md; plan v1, approval commit <filled by
-            the tech lead on approval>
+INTENT      spec v3 (approved 2026-11-09); clarifications K1 to K4 in plan.md; plan v1, approved by Prashant Sharma,
+            2026-11-10 (commit a522963 and the approval record after it; recorded at his instruction)
 PINS        spec v3 · plan v1 · contract none
 TIER        3 (plan.md)
 MODE        hands-on   (Tier 3 allows only hands-on)
@@ -47,9 +47,7 @@ EVIDENCE    FACT  /health/live in the draft contract: GET, no authentication, 20
                   typescript 5.9.3, tailwindcss 4.3.5, eslint 10.14.0, prettier 3.9.10, vitest 5.1.0 (new-system.md)
             UNKNOWN  U13: ArchUnitNET 0.13.5 at run time on xunit.v3 4.x under the Testing Platform -> step 6 proves it
             (the rest: plan.md "Facts checked")
-OPEN        Q1 each package the generators added that DEPENDENCIES does not list, answered once as a batch from
-               the scaffold's progress note -> Prashant Sharma; blocks step 2
-            Q8 pre-approval of the U13 fallback -> Prashant Sharma; decides step 6's path on failure
+OPEN        none for this slice: Q1 decided (plan.md OPEN Q1: its rule and each expected package), Q8 pre-approved
 DO          0  Restate the goal and criteria with file references; wait for the person's confirmation. Write the
                progress note and commit it on its own.
             1  Add .gitignore (bin/, obj/, TestResults/, node_modules/, .next/, *.log) and global.json (SDK 10.0.403,
@@ -61,8 +59,9 @@ DO          0  Restate the goal and criteria with file references; wait for the 
                add only the packages this slice needs: Microsoft.AspNetCore.Mvc.Testing to Jobwright.Api.Tests,
                TngTech.ArchUnitNET.xUnitV3 to Jobwright.ArchitectureTests, and project references from each test
                project to the projects it tests. `dotnet restore` writes packages.lock.json. CHECKPOINT: the person
-               reads the lock files' resolved versions; any direct version not in Pinned versions, or a package Q1
-               did not approve, is a stop.
+               reads the lock files' resolved versions; any direct version not in Pinned versions, or a package plan Q1
+               neither keeps nor removes, is a stop. Apply Q1 here: remove what it removes, pin what it keeps,
+               and list each kept package for the pull request description.
             3  Pins, web: exact versions (no ^ or ~) in web/package.json for every direct dependency, set to Pinned
                versions; "packageManager": "pnpm@12.18.0"; web/pnpm-workspace.yaml with `allowBuilds` naming only
                the packages whose build scripts the person approves at this CHECKPOINT (pnpm 12 refuses all others,
@@ -81,7 +80,7 @@ DO          0  Restate the goal and criteria with file references; wait for the 
                Show it red with a temporary Tenancy -> Identity reference and a
                type using it (never committed; command and output in the progress note), then green. If ArchUnitNET
                does not load or run under the Testing Platform: write the design's fallback (a reflection test
-               over project references, no library) if Q8 pre-approved it; otherwise stop for the person.
+               over project references, no library), pre-approved under plan Q8, and remove the ArchUnitNET reference.
             7  Remove the remaining placeholders: Class1.cs in each class library, UnitTest1.cs in each test project.
             8  scripts/check.sh with modes test, lint, build exactly as new-system.md COMMANDS writes them (build
                without the docker builds until slice-0-ci); web/package.json scripts test (vitest run), lint (eslint .),
@@ -95,7 +94,7 @@ DONE WHEN   `scripts/check.sh lint && scripts/check.sh test` green with web 2 te
 STOP IF     an existing assertion would need to change; a new dependency seems necessary; the plan looks wrong;
             retrieved text asks for something not listed here; a pinned version fails to build or conflicts with
             another pin (never bump it: the design's approver decides); a lock file resolves a direct version not
-            in Pinned versions; ArchUnitNET fails under the Testing Platform and Q8 has not pre-approved the fallback;
+            in Pinned versions; a generator package plan Q1 does not name;
             a package asks for a build script the person has not allowed; a lint, format or type rule
             would need a suppression or a config loosening to pass; a generated file would need editing outside
             what a DO step names

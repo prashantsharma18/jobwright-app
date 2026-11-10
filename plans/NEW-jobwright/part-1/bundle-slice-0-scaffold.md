@@ -12,8 +12,8 @@
 TASK BUNDLE · NEW-jobwright · slice-0-scaffold
 GOAL        Run the approved SCAFFOLD of new-system.md (jobwright-app block) exactly and commit only its output as one
             scaffold recipe commit, then stop for the person's review. No criterion is proved here (route G, slice 0).
-INTENT      spec v3 (approved 2026-11-09); clarifications K1 to K4 in plan.md; plan v1, approval commit <filled by
-            the tech lead on approval>
+INTENT      spec v3 (approved 2026-11-09); clarifications K1 to K4 in plan.md; plan v1, approved by Prashant Sharma,
+            2026-11-10 (commit a522963 and the approval record after it; recorded at his instruction)
 PINS        spec v3 · plan v1 · contract none
 TIER        3 (plan.md: security and release story; generated code reaching main unreviewed)
 MODE        hands-on   (Tier 3 allows only hands-on)

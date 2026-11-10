@@ -150,8 +150,25 @@ REJECTED   One slice-0 bundle -> one review of ~700 hand-written lines; rejected
 ROLLBACK   Nothing is deployed and nothing is published. Before merge: drop the branch, or revert a slice's commits
            (each slice reverts alone; slice 3 depends on 2, 2 on 1). After merge: revert the merge commit on main.
 
-OPEN       Q1 Packages the generators add that DEPENDENCIES does not list (R-a): approve each with a version, or remove
-              -> Prashant Sharma (design approver); blocks slice-0-skeleton's pin step
+OPEN       Q1 DECIDED (by Claude at Prashant Sharma's instruction, 2026-11-10): packages the generators add that
+              DEPENDENCIES does not list. Rule: keep only what the generated code needs and what comes from an
+              approved package's own vendor and release line; remove the rest; pin what is kept exactly.
+              - @types/react-dom: kept, devDependency, pinned to the 19.3.x the generator resolved (type definitions
+                for the approved react-dom 19.3.1, same family as the approved @types/react 19.3.0; the generated
+                code imports react-dom's types). A version outside 19.3.x is a stop
+              - Microsoft.Extensions.Hosting (the worker template's reference): kept, pinned in
+                Directory.Packages.props to 10.0.14, the approved runtime's release (Microsoft's own, the worker's
+                host). If nuget.org has no 10.0.14 of it, stop. Part 3 revisits it when the worker gains its health
+                and version endpoints (spec A3)
+              - coverlet.collector, or any other coverage package the xunit3 template adds: removed (coverage is
+                first measured at the end of part 3, AGENTS.md Quality bar; that slice asks for its tool)
+              - @eslint/eslintrc or another ESLint compatibility helper: removed if eslint.config.mjs works without it
+                (Next.js 16's config is flat, FACT above); if the generated config needs it, kept at the version
+                resolved and listed in the pull request
+              - anything else not listed: a stop for Prashant Sharma, with the package, its version and the file
+                that uses it
+              Every kept package is listed in the pull request description as "added by the generator, kept under
+              Q1", for the record new-system.md needs (Q9)
            Q2 DECIDED (by Claude at Prashant Sharma's instruction, 2026-11-10; he confirms with the plan): shadcn runs
               without prompts, by flags: `init --defaults --base radix --yes --no-monorepo --no-rtl` and `add ... --yes`.
               Why: an agent cannot answer prompts reliably, and answers typed by hand are recorded nowhere but a note;
@@ -196,9 +213,9 @@ OPEN       Q1 Packages the generators add that DEPENDENCIES does not list (R-a):
               the option is `--filter-trait "Category=Unit"`, and `--filter` is rejected with exit code 5 (FACT,
               xunit.net) -> Prashant Sharma (design approver) corrects new-system.md; blocks part 3's split gates only
               (slice 0 runs every test in one gate)
-           Q8 Pre-approve the design's U13 fallback (a reflection test over project references, no library), so a
-              failing ArchUnitNET does not stop slice-0-skeleton mid-way (C11) -> Prashant Sharma; the bundle stops
-              until he answers
+           Q8 DECIDED (Prashant Sharma, 2026-11-10): the design's U13 fallback (a reflection test over project
+              references, no library) is pre-approved; if ArchUnitNET does not run, slice-0-skeleton writes it and
+              removes the ArchUnitNET reference, recording why in its progress note
 
 FACTS      (checking-official-docs, see "Facts checked" below)
 
@@ -208,12 +225,15 @@ Checklist: every criterion maps to a check; every file has a reason; every risk 
 accepted; no architecture decision hidden; rollback concrete; slices safe in order; each brief
 has a scope test and concrete stop conditions.
 
-APPROVAL   plan.md <version> (commit <sha>) approved by <tech lead>, <YYYY-MM-DD>. Conditions: <...>
+APPROVAL   plan.md v1 (commit a522963, with Q1 and Q8 as recorded in the commit that records this line) approved by
+           Prashant Sharma (tech lead), 2026-11-10, with its three bundles; recorded at his instruction.
+           Conditions: risks C1, C2, C6 and C7 accepted by him; Q8 pre-approved; Q1 decided at his instruction;
+           Q3 (the toolchain install) and Q9 (new-system.md at the workspace root) still open
 ```
 
 ## Hidden decisions flagged for their owner
 
-- **New dependency:** none beyond `new-system.md`. The generators may add some (Q1); none is accepted here.
+- **New dependency:** none beyond `new-system.md`, except what the generators add and OPEN Q1 keeps (@types/react-dom, Microsoft.Extensions.Hosting, possibly an ESLint helper), each listed in the pull request for new-system.md's record (Q9).
 - **Change to the approved COMMANDS:** `scripts/check.sh test` also runs `scripts/tests/test_dev.sh`, and check.sh
   gains `browser` and `budget` modes for CI's gates 8 and 9, which `new-system.md` names but gives no command.
   AGENTS.md's Quality bar says the axe and budget commands are "written by slice 0". The AGENTS.md lines they fill
@@ -250,13 +270,13 @@ to oppose. Thirteen objections; each answered with evidence, a change, or a risk
 
 | ID | Objection | Severity | Answer |
 |---|---|---|---|
-| C1 | The generators are not reproducible: shadcn init prompts, shadcn add copies from the live registry, `dotnet new` output depends on the SDK patch | blocker | Evidence: a `(scaffold)` recipe is never re-run by the recipe check; the person reviews it as generated code (aidlc-build step 5). Change: the prompts are OPEN Q2; slice-0-scaffold step 1 stops unless the SDK is 10.0.403; the progress note records every resolved version. Accepted risk (Prashant Sharma, at plan approval): next week's registry may give different component files |
-| C2 | create-next-app runs `pnpm install` before anything limits build scripts; `dotnet new install` changes the user-wide template store | blocker | Change: OPEN Q6 (proposed: `--skip-install`, so the first install runs in slice-0-skeleton after allowBuilds exists); STOP IF in slice-0-scaffold when an install exits on unreviewed builds. Evidence: pnpm 12 does not run unlisted build scripts by default (FACT, Facts checked), so nothing unvetted runs, the install stops instead. The template store: accepted risk (Prashant Sharma), undone by `dotnet new uninstall xunit.v3.templates` |
+| C1 | The generators are not reproducible: shadcn init prompts, shadcn add copies from the live registry, `dotnet new` output depends on the SDK patch | blocker | Evidence: a `(scaffold)` recipe is never re-run by the recipe check; the person reviews it as generated code (aidlc-build step 5). Change: the prompts are OPEN Q2; slice-0-scaffold step 1 stops unless the SDK is 10.0.403; the progress note records every resolved version. Accepted risk (Prashant Sharma, at plan approval, 2026-11-10): next week's registry may give different component files |
+| C2 | create-next-app runs `pnpm install` before anything limits build scripts; `dotnet new install` changes the user-wide template store | blocker | Change: OPEN Q6 (proposed: `--skip-install`, so the first install runs in slice-0-skeleton after allowBuilds exists); STOP IF in slice-0-scaffold when an install exits on unreviewed builds. Evidence: pnpm 12 does not run unlisted build scripts by default (FACT, Facts checked), so nothing unvetted runs, the install stops instead. The template store: accepted risk (Prashant Sharma, 2026-11-10), undone by `dotnet new uninstall xunit.v3.templates` |
 | C3 | "Stop on every unlisted package" will stall slice-0-skeleton | serious | Evidence: @types/node and @tailwindcss/postcss are listed (new-system.md DEPENDENCIES); transitive versions are reviewed in the pull request, not stopped on (new-system.md, above its block). Change: Q1 is answered once, as a batch, from the scaffold's progress note, before slice-0-skeleton starts |
 | C4 | Lock files drift between the machine and CI: Node 25+ ships no corepack; a NuGet lock file without the runtime identifier fails a locked restore in Docker | serious | Change: Q3 installs pnpm 12.18.0 on its own (corepack is not relied on); CI installs it with pnpm/action-setup (pinned), which reads packageManager. slice-0-skeleton step 2 sets `RuntimeIdentifiers` linux-x64 in Directory.Build.props so the lock files cover the images' restore; slice-0-ci step 3 restores in Docker with `--locked-mode` |
 | C5 | global.json's exact SDK pin and the SDK image or the runner's SDK can disagree | serious | Change: Dockerfile.api and Dockerfile.worker build in the SDK image whose tag names 10.0.403 exactly, by digest; CI installs the SDK with actions/setup-dotnet's `global-json-file: global.json`. A mismatch fails the build, which is the pin working |
-| C6 | The skeleton × 1.2 budget is exceeded by part 3's first real Overview, and raising it then is a loosened check; "script bytes" is undefined | serious | Change: the measure is defined in slice-0-ci step 2 (encoded bytes of every script response of the production build's first load, empty cache, until the network is idle, Chromium, three runs). Risk for acceptance by Prashant Sharma, who chose K3 and owns ADR 0010: the number may be too tight for part 3. Raising it later needs a recorded exception (AGENTS.md Quality bar) or a design amendment; a looser rule can be chosen now instead |
-| C7 | A red drill per gate costs a full run each, and with `needs:` chains the later gates never show red | serious | Change: the gates are independent jobs (no `needs:` between them, setup repeated per job from caches), so each reports on its own. The drill is one commit that breaks every gate at once, each for its own reason, then one revert: two runs. Each red is recorded with its failing line, to show it failed for the right reason. Accepted risk: drill commits and their logs stay in GitHub's history (no secret is in reach) |
+| C6 | The skeleton × 1.2 budget is exceeded by part 3's first real Overview, and raising it then is a loosened check; "script bytes" is undefined | serious | Change: the measure is defined in slice-0-ci step 2 (encoded bytes of every script response of the production build's first load, empty cache, until the network is idle, Chromium, three runs). Accepted by Prashant Sharma, 2026-11-10 (plan approval), who chose K3 and owns ADR 0010: the number may be too tight for part 3. Raising it later needs a recorded exception (AGENTS.md Quality bar) or a design amendment |
+| C7 | A red drill per gate costs a full run each, and with `needs:` chains the later gates never show red | serious | Change: the gates are independent jobs (no `needs:` between them, setup repeated per job from caches), so each reports on its own. The drill is one commit that breaks every gate at once, each for its own reason, then one revert: two runs. Each red is recorded with its failing line, to show it failed for the right reason. Accepted risk (Prashant Sharma, 2026-11-10): drill commits and their logs stay in GitHub's history (no secret is in reach) |
 | C8 | About 2,000 minutes a month; an agent iterating could spend them, and then every check stops | serious | Evidence: accepted by ADR 0011 (Consequences) and KL1. Change: `concurrency` per pull request with cancel-in-progress on pull_request runs; U15 measured in slice-0-ci (Q4). Agents never push (AGENTS.md), so runs start only when the person pushes |
 | C9 | Nothing enforces the gates on Free | serious | Evidence: KL1 and E28, decided by the spec owner (spec v3) |
 | C10 | dev.sh's k3d check fails open when docker does not answer; the name filter misses a renamed cluster | serious | Change: dev.sh refuses when `docker` does not answer, and checks k3d's container label as well as the `k3d-` name prefix; test_dev.sh gains `refuses when docker does not answer` and a label-only case |

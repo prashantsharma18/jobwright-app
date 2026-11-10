@@ -14,8 +14,8 @@ GOAL        Add the three Dockerfiles, scripts/dev.sh with its refusal test, the
             AC12 axe scan, the AC26 budget test with the number from K3) and .github/workflows/ci.yml, so that every
             AGENTS.md command runs green locally and CI reports each gate on the draft pull request (AC27, part),
             each seen red once.
-INTENT      spec v3 (approved 2026-11-09); clarifications K1 to K4 in plan.md; plan v1, approval commit <filled by
-            the tech lead on approval>
+INTENT      spec v3 (approved 2026-11-09); clarifications K1 to K4 in plan.md; plan v1, approved by Prashant Sharma,
+            2026-11-10 (commit a522963 and the approval record after it; recorded at his instruction)
 PINS        spec v3 · plan v1 · contract none
 TIER        3 (plan.md)
 MODE        hands-on   (Tier 3 allows only hands-on)

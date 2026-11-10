@@ -16,5 +16,5 @@ the default branch only through the merge. A re-plan or a revision resets the la
 | Stage | Runs in | Status |
 |---|---|---|
 | aidlc-onboard (prepare) | jobwright-app | done (2026-11-09, branch feat/NEW-jobwright-onboard-prepare) |
-| slice 0 | jobwright-app | doing: aidlc-plan drafted plan v1 and bundles slice-0-scaffold, slice-0-skeleton, slice-0-ci (2026-11-10), waiting for the tech lead's approval, the toolchain install (Q3) and OPEN Q1, Q8 |
+| slice 0 | jobwright-app | doing: aidlc-plan drafted plan v1 and bundles slice-0-scaffold, slice-0-skeleton, slice-0-ci (2026-11-10), plan v1 approved by Prashant Sharma 2026-11-10 (recorded at his instruction); waiting for the toolchain install (Q3), then aidlc-build slice-0-scaffold |
 | aidlc-onboard (confirm) | jobwright-app | to do |
