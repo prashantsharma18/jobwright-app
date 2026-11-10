@@ -6,7 +6,7 @@ File: `plans/NEW-jobwright/part-1/progress-slice-0-scaffold.md`, committed on it
 with the slice; the compliance reviewer and the slice runner read it.
 
 ```text
-STATUS      doing
+STATUS      stopped: the sandbox blocks the generators' network and user-level caches (step 2); nothing generated
 MODE        hands-on
 ```
 
@@ -21,8 +21,17 @@ MODE        hands-on
 - [x] 1 Toolchain check — check: node v26.13.0, pnpm 12.18.0, dotnet 10.0.403 (from ~/.local/opt, see Assumptions);
       docker client 29.4.2 present, daemon started by Prashant Sharma; this session's sandbox is denied the socket
       ("permission denied ... /var/run/docker.sock"), as plan Q3 decides for this slice
-- [ ] 1b Commit this note on its own — files: plans/NEW-jobwright/part-1/progress-slice-0-scaffold.md — check: clean tree after
+- [x] 1b Commit this note on its own — files: plans/NEW-jobwright/part-1/progress-slice-0-scaffold.md — check: clean tree after (9fd7ada)
 - [ ] 2 create-next-app@16.4.5, exact command — files: web/** — check: exit 0, no prompt, no AGENTS.md/CLAUDE.md, nothing outside web/
+      STOPPED 2026-11-10, four attempts, none wrote a file (web/ absent, untracked list equal to the baseline):
+      a) in the sandbox: ERR_PNPM_CLI_DLX_CACHE, ~/.cache/pnpm "Read-only file system (os error 30)"
+      b) outside the sandbox: refused by the session's permission classifier (not attempted further)
+      c) in the sandbox, XDG_CACHE_HOME/XDG_DATA_HOME/XDG_STATE_HOME in the session temp folder:
+         ERR_PNPM_STORE_DIR_OPEN_OPERATION_LOCK "Read-only file system (os error 30)" (pnpm placed its store under the
+         repository, node_modules/.pnpm-store, because the temp folder is another filesystem)
+      d) as c, with PNPM_CONFIG_STORE_DIR in the temp folder: the same lock error; a probe install in a temp folder
+         then showed registry.npmjs.org:443 denied by the sandbox's network filter
+      Needs the person: see "Context gaps" and the session report
 - [ ] 3 shadcn@4.23.0 init, then add, exact commands — files: web/** — check: exit 0, no prompt, no build script run,
       web/pnpm-workspace.yaml allows no build
 - [ ] 4 dotnet new sln/webapi/worker/console/classlib, xunit.v3.templates install, xunit3, tool-manifest, dotnet-ef —
@@ -36,7 +45,11 @@ MODE        hands-on
 - aidlc:committing-changes — plugin version 5.0.0
 
 ## Deviations
-- none yet
+- Attempt a) ran with `CI=1` in its environment, which the approved command does not set — a slip by the agent; it failed
+  before generating anything and was dropped from every later attempt
+- Attempts c) and d) moved pnpm's cache, data, state and store folders to the session temp folder by environment
+  variables, leaving the approved command unchanged — to stay inside the sandbox; neither succeeded. A recipe run that
+  succeeds this way must be recorded here, since the store location is not part of the approved recipe
 
 ## Amended assertions seen red
 - none
@@ -60,3 +73,7 @@ MODE        hands-on
 ## Context gaps noticed (B5)
 - gap: the bundle's step 1 still requires Docker although plan Q3 was decided later to run this slice without the socket
 - gap: the bundle wrote `-n <name>` for the modules without saying whether `<name>` is short or dotted
+- gap: neither the plan (Q3) nor the bundle says how the generators reach their registries from the agent's sandbox:
+  they need registry.npmjs.org, the shadcn registry (ui.shadcn.com), api.nuget.org, and write access to the user-level
+  caches (~/.cache/pnpm, ~/.local/share/pnpm, ~/.nuget/packages, ~/.templateengine, ~/.dotnet). The sandbox denies all
+  of these here, and running outside it was refused
