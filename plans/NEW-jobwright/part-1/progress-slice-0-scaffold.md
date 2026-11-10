@@ -6,7 +6,7 @@ File: `plans/NEW-jobwright/part-1/progress-slice-0-scaffold.md`, committed on it
 with the slice; the compliance reviewer and the slice runner read it.
 
 ```text
-STATUS      paused: recipe review
+STATUS      done
 MODE        hands-on
 ```
 
@@ -14,7 +14,9 @@ MODE        hands-on
 - Not applicable: hands-on. The restatement was given in the session and confirmed by Prashant Sharma, 2026-11-10.
 
 ## Pauses confirmed (by the person)
-- none yet
+- recipe review confirmed by Prashant Sharma, 2026-11-10 — delegated: at his instruction ("take appropriate decisions
+  on my behalf") Claude reviewed 06a65b0 and took the decisions under "Recipe review decisions" below. He has not read
+  the diff himself; his review of the pull request before merge remains the human check of this generated code
 
 ## Session plan
 - [x] 0 Restate goal, recipe, MAY CHANGE and STOP IF; wait for confirmation — check: confirmed by Prashant Sharma, 2026-11-10
@@ -111,6 +113,10 @@ MODE        hands-on
   otherwise pick node_modules/.pnpm-store in the repository, outside web/). pnpm copies, not hard-links, from the store
 - Slip: the first `dotnet new install` ran without the PATH prefix, with /usr/bin/dotnet 10.0.114; it crashed before
   installing (mutex under /run/user/1000), nothing changed in ~/.templateengine; re-run with SDK 10.0.403
+- aidlc-build step 9's reviewing-code pass was not run on 06a65b0: it is generator output only, reviewed against the
+  bundle's checklist (files, packages, agent files, build scripts, ports) under the delegated recipe review; the
+  multi-axis review applies to slice-0-skeleton's hand-written code and to aidlc-review on the pull request
+- No test or lint command run: none exists yet (bundle DONE WHEN; aidlc-build steps 1 and 8 on slice 0)
 
 ## Amended assertions seen red
 - none
@@ -129,6 +135,45 @@ MODE        hands-on
   plans global.json at the root, and a root manifest is SDK 10's default, found by `dotnet tool restore`. Follow-up for
   aidlc-plan (not edited here): the bundle's MAY CHANGE and plan FILES (`.config/dotnet-tools.json` ->
   `dotnet-tools.json`; global.json now created by the scaffold, then completed with the SDK pin in slice-0-skeleton)
+
+## Recipe review decisions (plan Q1 and the review checklist)
+Decided by Claude at Prashant Sharma's instruction, 2026-11-10, under plan Q1's rule (keep only what the generated
+code needs and what comes from an approved package's own vendor and release line; pin what is kept exactly):
+- R1 `cn` 0.5.2 — KEEP, exact pin 0.5.2; clsx and tailwind-merge not added. Evidence (registry, 2026-11-10):
+  maintainer shadcn <m@shadcn.com>, repository github.com/shadcn-ui/cn, published by GitHub Actions with SLSA
+  provenance v1; the shadcn CLI itself depends on cn 0.2.6; all 8 generated web files import it, and future
+  `shadcn add` output will too. Risks accepted: pre-1.0, the name was reused (0.1.x from 2013, shadcn's versions
+  from 0.2.0 on 2026-09-01), only two months old. slice-0-skeleton's `cn keeps the last of two conflicting Tailwind
+  classes` test pins its behaviour. (Earlier in the session Claude suggested replacing it; the provenance check
+  changed that.)
+- R2 `@tailwindcss/turbopack` 4.3.5 — KEEP, exact pin 4.3.5 (Tailwind's own, same release line as the approved
+  tailwindcss 4.3.5); web/next.config.ts loads it as the CSS loader and no PostCSS config exists, so
+  @tailwindcss/postcss is not added
+- R3 `xunit.v3.mtp-v2` 4.0.2 — KEEP, central pin 4.0.2 (xUnit's own, the Testing Platform v2 form of the approved
+  xunit.v3 4.0.2; global.json already selects the platform). xunit.runner.visualstudio and Microsoft.NET.Test.Sdk
+  are not added. INFERENCE, to be checked with checking-official-docs in slice-0-skeleton: the VSTest packages are
+  not needed under the platform's v2; if xUnit's docs say otherwise, that is a stop
+- R4 the two xunit3 projects target net8.0 — CHANGE to net10.0 in slice-0-skeleton (the stack is .NET 10; one
+  framework for every project)
+- R5 `shadcn` 4.23.0 in dependencies — MOVE to devDependencies, exact 4.23.0. It is still needed at build time:
+  web/src/app/globals.css imports "shadcn/tailwind.css"; it is not needed at run time (it brings the CLI's
+  dependencies, among them @modelcontextprotocol/server and @dotenvx/dotenvx)
+- R6 versions below the pins (react, react-dom 19.3.0; @types/node 20.19.43; eslint 9.39.5) — no decision: the
+  slice-0-skeleton pin step sets Pinned versions (19.3.1, 26.6.6, 10.14.0); a pin that fails is its stop (R-c)
+- R7 ports — `next dev` and `next start` default to port 3000 on every interface, and AGENTS.md reserves 3000 and
+  requires 127.0.0.1: slice-0-skeleton sets the web scripts to `-H 127.0.0.1 -p 55300` (K4). The API's
+  launchSettings (localhost 5066, 7131) is not reserved; align it to 127.0.0.1:55080 (K4) at the same time
+- R8 Docker for this slice: the sandbox denial of the socket accepted as plan Q3 intends (no socket until slice-0-ci)
+- R9 the solution format: Jobwright.slnx accepted (U10); `@types/react-dom` 19.3.0 within 19.3.x, kept as plan Q1 says;
+  Microsoft.Extensions.Hosting 10.0.14 at its pin; no coverlet.collector; web/next-env.d.ts left as the generated
+  .gitignore leaves it
+Needed before slice-0-skeleton starts (its approved bundle would otherwise stop on these):
+- aidlc-plan, in this repository: plan Q1 names R1 to R3 as kept; the skeleton bundle's MAY CHANGE takes
+  `dotnet-tools.json` (option A) in place of `.config/dotnet-tools.json`, and its DO steps cover R4, R5 and R7;
+  plan FILES updated for option A; the person approves the revised bundle
+- the workspace root: new-system.md records R1 to R3 (DEPENDENCIES and Pinned versions: cn 0.5.2 for clsx and
+  tailwind-merge, @tailwindcss/turbopack 4.3.5 for @tailwindcss/postcss, xunit.v3.mtp-v2 4.0.2 for xunit.v3 with
+  the two VSTest packages) and the root dotnet-tools.json; design approver Prashant Sharma
 
 ## Assumptions
 - The pinned toolchain is used through `PATH=~/.local/opt/node-v26.13.0/bin:~/.local/opt/dotnet-10.0.403:$PATH` and

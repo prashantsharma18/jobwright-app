@@ -16,5 +16,5 @@ the default branch only through the merge. A re-plan or a revision resets the la
 | Stage | Runs in | Status |
 |---|---|---|
 | aidlc-onboard (prepare) | jobwright-app | done (2026-11-09, branch feat/NEW-jobwright-onboard-prepare) |
-| slice 0 | jobwright-app | doing: aidlc-plan drafted plan v1 and bundles slice-0-scaffold, slice-0-skeleton, slice-0-ci (2026-11-10), plan v1 approved by Prashant Sharma 2026-11-10 (recorded at his instruction); toolchain installed (Q3); aidlc-build slice-0-scaffold paused for recipe review (2026-11-10): recipe commit 06a65b0, root global.json and dotnet-tools.json under option A (progress-slice-0-scaffold.md) |
+| slice 0 | jobwright-app | doing: aidlc-plan drafted plan v1 and bundles slice-0-scaffold, slice-0-skeleton, slice-0-ci (2026-11-10), plan v1 approved by Prashant Sharma 2026-11-10 (recorded at his instruction); toolchain installed (Q3); aidlc-build slice-0-scaffold done (2026-11-10): recipe commit 06a65b0, root global.json and dotnet-tools.json under option A, recipe review delegated to Claude by Prashant Sharma (decisions R1 to R9 in progress-slice-0-scaffold.md); next: aidlc-plan revises plan Q1 and the slice-0-skeleton bundle, the workspace root records R1 to R3 in new-system.md, then aidlc-build slice-0-skeleton |
 | aidlc-onboard (confirm) | jobwright-app | to do |
