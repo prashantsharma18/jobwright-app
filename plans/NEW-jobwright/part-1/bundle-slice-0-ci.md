@@ -5,7 +5,10 @@
 - **Asked of:** The tech lead, to approve this slice, its MODE and its boundaries
 - **Record it:** On the work item with the plan's version and commit; a changed bundle is approved again
 - **Tier and main risk:** 3: a workflow with more permission than it needs, an unpinned action, or a secret within reach of a pull-request run
-- **Changed since the last version:** first version
+- **Changed since the last version:** v2 (2026-11-10), pinned to plan v2: MAY CHANGE takes the root
+  `dotnet-tools.json` in place of `.config/dotnet-tools.json` (option A, recipe commit 06a65b0), since the whole
+  branch's diff is checked against this bundle; step 3 names the repository root as the .NET images' build context,
+  so global.json and dotnet-tools.json are inside it (plan v2, challenge V5). Approved v1: with plan v1, 2026-11-10
 
 <!-- Paste command output indented by four spaces: a line of three backticks would end the block. -->
 ```text
@@ -14,9 +17,10 @@ GOAL        Add the three Dockerfiles, scripts/dev.sh with its refusal test, the
             AC12 axe scan, the AC26 budget test with the number from K3) and .github/workflows/ci.yml, so that every
             AGENTS.md command runs green locally and CI reports each gate on the draft pull request (AC27, part),
             each seen red once.
-INTENT      spec v3 (approved 2026-11-09); clarifications K1 to K4 in plan.md; plan v1, approved by Prashant Sharma,
-            2026-11-10 (commit a522963 and the approval record after it; recorded at his instruction)
-PINS        spec v3 · plan v1 · contract none
+INTENT      spec v3 (approved 2026-11-09); clarifications K1 to K4 in plan.md; plan v2 (2026-11-10, recipe review
+            R1 to R9), awaiting approval; plan v1 approved by Prashant Sharma, 2026-11-10 (commit a522963 and the
+            approval record after it; recorded at his instruction)
+PINS        spec v3 · plan v2 · contract none
 TIER        3 (plan.md)
 MODE        hands-on   (Tier 3 allows only hands-on)
 ALREADY     AGENTS.md (via CLAUDE.md), the workspace's WORKSPACE.md
@@ -36,7 +40,7 @@ PATTERN     scripts/check.sh from slice-0-skeleton (set -euo pipefail, one mode 
 USE SKILLS  aidlc:building-ci-pipelines, aidlc:testing-in-browser, aidlc:writing-tests, aidlc:securing-code,
             aidlc:checking-official-docs, aidlc:committing-changes
 RECIPE      none
-MAY CHANGE  web/**, api/**, .config/dotnet-tools.json, global.json, .gitignore, scripts/check.sh, scripts/dev.sh,
+MAY CHANGE  web/**, api/**, dotnet-tools.json, global.json, .gitignore, scripts/check.sh, scripts/dev.sh,
             scripts/tests/**, Dockerfile.web, Dockerfile.api, Dockerfile.worker, .dockerignore,
             .github/workflows/ci.yml, plans/NEW-jobwright/part-1/**
             (the whole branch's diff is checked: this list includes the earlier slices' paths)
@@ -90,7 +94,8 @@ DO          0  Restate the goal and criteria with file references; wait for the 
                bytes and the number before the budget is committed.
             3  Images: Dockerfile.web (node:26.13.0 by digest, standalone output, non-root user), Dockerfile.api
                (the SDK image whose tag names 10.0.403 exactly, to build, restoring with --locked-mode; aspnet
-               10.0.14 to run; by digest; non-root), Dockerfile.worker (the same SDK image to build Jobwright.Worker
+               10.0.14 to run; by digest; non-root; build context the repository root, so the root global.json
+               and dotnet-tools.json are in it, plan v2 challenge V5), Dockerfile.worker (the same SDK image to build Jobwright.Worker
                and Jobwright.Admin; runtime 10.0.14; by digest; non-root), .dockerignore;
                output: 'standalone' in web/next.config.ts. Resolve each tag's digest from its registry and record the
                command and output. Add the three docker builds to `scripts/check.sh build`. Each image starts and its
