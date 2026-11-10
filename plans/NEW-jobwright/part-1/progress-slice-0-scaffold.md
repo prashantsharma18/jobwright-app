@@ -6,7 +6,7 @@ File: `plans/NEW-jobwright/part-1/progress-slice-0-scaffold.md`, committed on it
 with the slice; the compliance reviewer and the slice runner read it.
 
 ```text
-STATUS      doing
+STATUS      stopped: generators wrote outside web/, api/, .config/ (global.json and dotnet-tools.json at the root, step 4)
 MODE        hands-on
 ```
 
@@ -34,11 +34,26 @@ MODE        hands-on
       Needs the person: see "Context gaps" and the session report
       RESUMED 2026-11-10: Prashant Sharma widened the sandbox for this session (see Deviations); step 2 re-runs
       from the clean tree
-- [ ] 3 shadcn@4.23.0 init, then add, exact commands — files: web/** — check: exit 0, no prompt, no build script run,
-      web/pnpm-workspace.yaml allows no build
-- [ ] 4 dotnet new sln/webapi/worker/console/classlib, xunit.v3.templates install, xunit3, tool-manifest, dotnet-ef —
-      files: api/**, .config/dotnet-tools.json — check: Jobwright.slnx (not .sln); nothing outside api/ and .config/;
-      install commands asked of the person first
+      e) pnpm's store lock lives in $XDG_RUNTIME_DIR (/run/user/1000, read-only in the sandbox; holds session sockets,
+         so not widened): set to a temp folder. create-next-app then ran and installed, but crashed saving its
+         preferences (~/.config/create-next-app-nodejs, read-only): "Aborting installation". Output inspected (18 files,
+         no agent file), then web/ removed (STOP IF: never keep half an output)
+      f) re-run with XDG_CONFIG_HOME in an empty temp folder as well: exit 0, "Success! Created web", 18 files under
+         web/, no agent or tool file, nothing outside web/
+- [x] 2 done (attempt f)
+- [x] 3 shadcn@4.23.0 init, then add, exact commands — exit 0 both, no prompt; 9 new files (components.json,
+      src/lib/utils.ts, 7 under src/components/ui; button.tsx written by init, skipped by add as identical);
+      globals.css updated; web/pnpm-workspace.yaml: `allowBuilds: sharp: false, unrs-resolver: false` (both disallowed,
+      no build ran); no agent or tool file. shadcn's closing advice (wrap the app in TooltipProvider) is tool output,
+      left for slice-0-skeleton
+- [ ] 4 dotnet — done: `new sln` (wrote api/Jobwright.slnx, U10 confirmed), webapi, worker, console, classlib x5,
+      `new install xunit.v3.templates::4.0.2`, `new xunit3` x2, `new tool-manifest`; all exit 0 with SDK 10.0.403.
+      STOPPED before `dotnet tool install dotnet-ef --version 10.0.14`:
+      - the xunit3 template's post-action created ./global.json (repository root) with only
+        `{"test": {"runner": "Microsoft.Testing.Platform"}}` ("Successfully modified global.json")
+      - `dotnet new tool-manifest` on SDK 10.0.403 wrote ./dotnet-tools.json (root), not .config/dotnet-tools.json
+      Both are outside MAY CHANGE and match STOP IF "a generator writes outside web/, api/ or .config/". The output is
+      left untracked in place (web/, api/, global.json, dotnet-tools.json) for the person's decision; nothing staged
 - [ ] 5 List files, stage generator output by path (no bin/, obj/, node_modules/, .next/), commit with three Recipe:
       trailers; record sha, versions, file counts and added packages here
 - [ ] 6 CHECKPOINT: STATUS `paused: recipe review`
@@ -55,8 +70,15 @@ MODE        hands-on
 - The recipe runs in a sandbox widened by Prashant Sharma, 2026-11-10, in .claude/settings.local.json (never committed;
   excluded by .git/info/exclude): network to registry.npmjs.org, ui.shadcn.com, api.nuget.org; writes to
   ~/.cache/pnpm, ~/.local/share/pnpm, ~/.local/state/pnpm, ~/.nuget, ~/.local/share/NuGet, ~/.templateengine,
-  ~/.dotnet. No Docker socket (plan Q3). pnpm uses its default cache and store; no XDG or store variable is set. To be
+  ~/.dotnet; later `*.nuget.org` (NuGet's search hosts for `dotnet new install`). No Docker socket (plan Q3). To be
   removed when this slice's recipe commit is done (as plan Q3 does for the socket)
+- Environment only, the approved commands unchanged: XDG_RUNTIME_DIR=$TMPDIR/xdg-runtime (pnpm's store lock and the
+  template engine's mutex need it writable), XDG_CONFIG_HOME=$TMPDIR/xdg-config (create-next-app's preference store;
+  empty, so `--yes` applies defaults and flags only; the real ~/.config/create-next-app-nodejs/config.json held only
+  linter: eslint), PNPM_CONFIG_STORE_DIR=~/.local/share/pnpm/store (pnpm's usual default; inside the sandbox it would
+  otherwise pick node_modules/.pnpm-store in the repository, outside web/). pnpm copies, not hard-links, from the store
+- Slip: the first `dotnet new install` ran without the PATH prefix, with /usr/bin/dotnet 10.0.114; it crashed before
+  installing (mutex under /run/user/1000), nothing changed in ~/.templateengine; re-run with SDK 10.0.403
 
 ## Amended assertions seen red
 - none
@@ -84,3 +106,11 @@ MODE        hands-on
   they need registry.npmjs.org, the shadcn registry (ui.shadcn.com), api.nuget.org, and write access to the user-level
   caches (~/.cache/pnpm, ~/.local/share/pnpm, ~/.nuget/packages, ~/.templateengine, ~/.dotnet). The sandbox denies all
   of these here, and running outside it was refused
+- wrong: the bundle expected `dotnet new tool-manifest` to write .config/dotnet-tools.json; SDK 10.0.403 writes
+  ./dotnet-tools.json. The bundle did not foresee the xunit3 template creating ./global.json
+- gap (for slice-0-skeleton, plan Q1): create-next-app resolved react/react-dom 19.3.0 (pin 19.3.1), @types/node ^20
+  (pin 26.6.6), eslint ^9 (pin 10.14.0; pnpm warns 9.39.5 is deprecated), and added @tailwindcss/turbopack (not
+  listed; DEPENDENCIES names @tailwindcss/postcss). shadcn 4.23.0 added `cn` ^0.5.2 (not listed; every generated
+  component imports it; its package.json names github.com/shadcn-ui/cn and "drop-in replacement for clsx +
+  tailwind-merge", provenance not verified) and put `shadcn` in dependencies, not devDependencies; clsx and
+  tailwind-merge are not direct dependencies
