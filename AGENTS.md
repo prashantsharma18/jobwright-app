@@ -26,7 +26,8 @@ Every pinned version: `../stories/NEW-jobwright/new-system.md`, **Pinned version
 - Story level (intent to design, release) runs at the workspace root; plan to review run here, on branch
   `feat/<KEY>-<part>`. Part indexes: `plans/<KEY>/part-<n>/README.md`.
 - Tests first: a failing test before any code; for a defect, a test that reproduces it.
-- Every change is reviewed in a pull request by a code owner who did not write it.
+- Every change goes through a pull request, merged only when every check has run and passed (spec E28). Prashant
+  Sharma authors and merges; GitHub Free enforces nothing (KL1, KL2).
 
 ## Map
 No code yet: `docs/codebase-map.md` is written by `aidlc-onboard (confirm)` after slice 0. Until then, the planned
@@ -68,7 +69,10 @@ Pattern to follow for each: named by `aidlc-onboard (confirm)` from slice 0's co
 - Telemetry carries only attributes on the allowlist; never personal data (ADR 0009, AC19).
 - Tokens are never readable by page scripts; every route sends the security headers (ADR 0002, ADR 0010; AC14, AC15).
 - Workflows: every `uses:` pinned to a 40-character SHA with a `# vX.Y.Z` comment, no absolute-URL `uses:`; every
-  workflow and job states `permissions:`; pull-request jobs get no secrets (ADR 0005).
+  workflow starts with `permissions: contents: read`; pull-request jobs get no secrets; only the main-branch run reads
+  `STAGING_TOKEN` (ADR 0011).
+- Images: built once on `main`, tested by digest, pushed to ghcr.io with `sha-<commit>`, then staging is committed,
+  never backwards (Released versions v2, ADR 0012).
 
 ## Quality bar
 - Floor, always on: no new suppression (lint, type or compiler), no skipped or deleted test, no weakened assertion,
@@ -98,7 +102,7 @@ Pattern to follow for each: named by `aidlc-onboard (confirm)` from slice 0's co
 - The API and the worker never get a route on the public gateway (ADR 0001). (CI also checks this: the chart test.)
 - Bind every port to 127.0.0.1, never 3000, 3001, 4318, 4444, 9090 or 9091: the owner's lab holds them
   (requirements 9.5).
-- Never push to any remote until the owner asks. Commit as
+- Agents never push; Prashant Sharma pushes (spec v2, A2). Commit as
   `prashantsharma18 <6386481+prashantsharma18@users.noreply.github.com>`, never a work email (requirements 9.2).
 - Write only in this repository. `../stories/` is readable for the story's documents; the workspace root updates them.
 - Read another repository's contract at its release tag, never a copy.
@@ -123,4 +127,4 @@ Pattern to follow for each: named by `aidlc-onboard (confirm)` from slice 0's co
   `../stories/NEW-jobwright/adr-draft-<n>.md`)
 - Requirements: `../docs/requirements/2026-11-08-jobwright-requirements.md`
 - Spec and design: `../stories/NEW-jobwright/`
-- Owners: `CODEOWNERS` (repository root, Gitea's regular-expression format)
+- Owners: `CODEOWNERS` (repository root, GitHub's format; not enforced on Free, KL1)

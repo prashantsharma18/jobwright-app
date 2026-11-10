@@ -1,5 +1,4 @@
-# Every change needs an approving review from its code owner (ADR 0005: Gitea's "Require approval from code owners").
-# Gitea reads this file at the repository root and matches paths with Go regular expressions, not globs.
-# When the repository moves to GitHub, rewrite the rules as globs (`*`), since the two formats differ.
+# GitHub CODEOWNERS (gitignore-style patterns). On GitHub Free, private repositories do not enforce code owners
+# (spec v3, KL1); moving to GitHub Pro turns it on (ADR 0011).
 # One owner today (requirements 11). Add a rule per path when a second owner joins.
-.* @prashantsharma18
+* @prashantsharma18
