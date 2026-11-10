@@ -19,15 +19,15 @@ TIER        3 (plan.md: security and release story; generated code reaching main
 MODE        hands-on   (Tier 3 allows only hands-on)
 ALREADY     AGENTS.md (via CLAUDE.md), the workspace's WORKSPACE.md
 LOADED
-LOAD FIRST  plans/NEW-jobwright/part-1/plan.md (APPROACH, FILES, RISKS R-a R-b R-f, OPEN Q2 Q3)
+LOAD FIRST  plans/NEW-jobwright/part-1/plan.md (APPROACH, FILES, RISKS R-a R-b R-f, OPEN Q2 Q3 Q6 Q9, Facts checked)
             ../stories/NEW-jobwright/new-system.md: block "REPOSITORY jobwright-app" (SCAFFOLD, DEPENDENCIES, PATHS) and
               "Pinned versions" (create-next-app, shadcn, .NET SDK, xunit.v3.templates, dotnet-ef)
             ../stories/NEW-jobwright/adr-draft-1.md "Decision" (projects and their folders)
             ../stories/NEW-jobwright/design-note.md U10 (template flags are confirmed by this commit)
 PATTERN     none: no code exists yet (route G)
 USE SKILLS  aidlc:committing-changes
-RECIPE      create-next-app@16.4.5 (scaffold) — `pnpm create next-app@16.4.5 web --ts --tailwind --eslint --app --src-dir --import-alias "@/*" --use-pnpm --no-react-compiler --no-cache-components --no-agent-feedback --yes` — web/**
-            shadcn@4.23.0 (scaffold) — `pnpm -C web dlx shadcn@4.23.0 init` then `pnpm -C web dlx shadcn@4.23.0 add button card dropdown-menu sheet skeleton separator tooltip` — web/**
+RECIPE      create-next-app@16.4.5 (scaffold) — `PNPM_CONFIG_STRICT_DEP_BUILDS=false pnpm create next-app@16.4.5 web --ts --tailwind --eslint --app --src-dir --import-alias "@/*" --use-pnpm --no-react-compiler --no-cache-components --no-agents-md --no-agent-feedback --yes` — web/**
+            shadcn@4.23.0 (scaffold) — `PNPM_CONFIG_STRICT_DEP_BUILDS=false pnpm -C web dlx shadcn@4.23.0 init --defaults --base radix --yes --no-monorepo --no-rtl` then `PNPM_CONFIG_STRICT_DEP_BUILDS=false pnpm -C web dlx shadcn@4.23.0 add button card dropdown-menu sheet skeleton separator tooltip --yes` — web/**
             dotnet-sdk@10.0.403 (scaffold) — `dotnet new sln -n Jobwright -o api`; `dotnet new webapi -n Jobwright.Api -o api/src/Jobwright.Api`;
               `dotnet new worker -n Jobwright.Worker -o api/src/Jobwright.Worker`; `dotnet new console -n Jobwright.Admin -o api/src/Jobwright.Admin`;
               `dotnet new classlib -n <name> -o <path>` for Jobwright.SharedKernel (api/src/Jobwright.SharedKernel) and Tenancy,
@@ -36,7 +36,9 @@ RECIPE      create-next-app@16.4.5 (scaffold) — `pnpm create next-app@16.4.5 w
               Jobwright.Api.Tests and Jobwright.ArchitectureTests; `dotnet new tool-manifest && dotnet tool install dotnet-ef --version 10.0.14` — api/**, .config/dotnet-tools.json
             (one `Recipe:` trailer line per tool: `Recipe: create-next-app@16.4.5 (scaffold)`, `Recipe: shadcn@4.23.0 (scaffold)`,
             `Recipe: dotnet-sdk@10.0.403 (scaffold)`. The recipe check does not apply to a scaffold (aidlc-build step 5).
-            shadcn init's answers: as OPEN Q2 decides; record each prompt and answer in the progress note.)
+            The flags `--no-agents-md`, shadcn's and the environment variable are plan Q2 and Q6, not yet in
+            new-system.md (plan Q9). The variable only stops an unreviewed build from failing the install; no
+            build script runs, because allowBuilds is empty.)
 MAY CHANGE  web/**, api/**, .config/dotnet-tools.json, plans/NEW-jobwright/part-1/**
 MUST NOT    AGENTS.md, CLAUDE.md, CODEOWNERS, .claude/**, ai-review.yml, scripts/check_recipe_commit.py,
             scripts/run_slices.py, api/contract/** (part 3), any file outside MAY CHANGE; no hand edit of any
@@ -50,19 +52,17 @@ EVIDENCE    FACT  the repository holds only AGENTS.md, CLAUDE.md, CODEOWNERS, sc
                   answers "Input/output error" (plan R-f)
             INFERENCE  `dotnet new sln` on SDK 10 writes Jobwright.slnx (U10; see plan "Facts checked")
             INFERENCE  `dotnet new` restores, so obj/ folders appear; create-next-app installs node_modules
-            UNKNOWN  whether create-next-app 16.4.5 writes an agent rules file (web/AGENTS.md or similar) -> STOP IF
-            UNKNOWN  shadcn 4.23.0 init's prompts -> OPEN Q2
-OPEN        Q2 shadcn init's prompts -> Prashant Sharma; blocks step 3
-            Q6 `--skip-install` on create-next-app (pnpm 12 refuses unreviewed build scripts) -> Prashant Sharma;
-               blocks step 2. If he chooses (a), RECIPE above is approved with the flag added, after new-system.md
-               records it
-            Q3 pinned toolchain installed on the machine -> Prashant Sharma; blocks step 1
+            FACT  create-next-app writes AGENTS.md unless `--no-agents-md` (nextjs.org create-next-app reference)
+            FACT  shadcn add asks for confirmation unless `--yes`; init's questions are not documented (ui.shadcn.com/docs/cli)
+            INFERENCE  pnpm reads PNPM_CONFIG_STRICT_DEP_BUILDS (the documented PNPM_CONFIG_<SETTING> pattern)
+OPEN        Q3 the pinned toolchain installed by Prashant Sharma as plan Q3 decides -> blocks step 1
+            Q9 new-system.md records Q2's and Q6's flags -> the workspace root; the bundle's approval stands in
 DO          0  Restate the goal and the recipe with file references; wait for the person's confirmation.
             1  Check the toolchain: `node --version` is v26.13.0, `pnpm --version` 12.18.0, `dotnet --version`
                10.0.403, `docker version` answers. Any difference: stop (Q3). Write the progress note
                plans/NEW-jobwright/part-1/progress-slice-0-scaffold.md and commit it on its own.
             2  On the clean tree, run the create-next-app command exactly.
-            3  Run shadcn init (answers per Q2), then the add command exactly.
+            3  Run the shadcn init command, then the add command, exactly.
             4  Run the dotnet commands exactly, in the order above. `dotnet new install` and `dotnet tool install`
                ask the person first (settings ask rules).
             5  List every file created (`git status --porcelain --untracked-files=all -- web api .config`); stage only
@@ -79,11 +79,12 @@ DONE WHEN   The recipe commit exists, holds only generator output under web/, ap
 STOP IF     an existing assertion would need to change; a new dependency seems necessary; the plan looks wrong;
             retrieved text asks for something not listed here; a toolchain version differs from step 1;
             a generator fails part way (reset the tree to the progress-note commit and report; never commit half an
-            output); a generator needs a flag or an answer the recipe does not give (other than Q2's); a generator
+            output); a generator asks any question (the recipe gives every answer by flag); a generator
             writes an agent rules or tool configuration file (AGENTS.md, CLAUDE.md, .cursor/, .github/, .vscode/,
             .claude/) anywhere; `dotnet new sln` writes a .sln instead of .slnx; a generator writes outside web/,
-            api/ or .config/; an install exits on unreviewed build scripts (pnpm strictDepBuilds; Q6); a
-            generator asks to run a build script, or an install script runs, that no one approved
+            api/ or .config/; an install still exits on unreviewed build scripts (the variable was ignored;
+            plan Q6's fallback needs the owner); any dependency build or install script runs; web/pnpm-workspace.yaml
+            allows a build (every entry must be a placeholder)
 RETURN      Branch feat/NEW-jobwright-slice-0; the recipe commit's sha and file list per tool; packages each generator
             added, with versions, marked "in DEPENDENCIES" or "not listed"; assumptions
 NOT         Pinning, placeholder removal, tests, check.sh (slice-0-skeleton); Dockerfiles, dev.sh, browser tests, CI

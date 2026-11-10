@@ -118,7 +118,7 @@ RISKS      R-a A generator adds an unlisted package (expected: @types/react-dom 
                Microsoft.Extensions.Hosting from the worker template; possibly coverlet.collector from xunit3, and
                eslint helpers) -> stop at the pin step; the design's approver decides each (OPEN Q1)
            R-b A generator writes an agent rules file (web/AGENTS.md, CLAUDE.md or similar) that agents would then load
-               -> STOP IF in slice-0-scaffold; the person decides whether it stays
+               -> create-next-app does by default (FACT); `--no-agents-md` (Q6); STOP IF any other appears
            R-c Pinning down from what the generators resolved breaks the build -> the pin step runs the build; a version
                that will not work is a stop for the design's approver, never a silent bump
            R-d ArchUnitNET 0.13.5 fails on xunit.v3 4.x under the Testing Platform (U13) -> the design's fallback: a
@@ -152,21 +152,46 @@ ROLLBACK   Nothing is deployed and nothing is published. Before merge: drop the 
 
 OPEN       Q1 Packages the generators add that DEPENDENCIES does not list (R-a): approve each with a version, or remove
               -> Prashant Sharma (design approver); blocks slice-0-skeleton's pin step
-           Q2 shadcn init's prompts: the approved command has no flags, so it asks questions -> Prashant Sharma: answer
-              them by hand in slice-0-scaffold (recorded in its progress note), or amend new-system.md with flags;
-              blocks slice-0-scaffold
-           Q3 Install Node.js 26.13.0, pnpm 12.18.0 (via packageManager), .NET SDK 10.0.403, a working Docker and
-              actionlint 1.7.12 on the machine -> Prashant Sharma; blocks slice-0-scaffold
+           Q2 DECIDED (by Claude at Prashant Sharma's instruction, 2026-11-10; he confirms with the plan): shadcn runs
+              without prompts, by flags: `init --defaults --base radix --yes --no-monorepo --no-rtl` and `add ... --yes`.
+              Why: an agent cannot answer prompts reliably, and answers typed by hand are recorded nowhere but a note;
+              `--base radix` matches the approved runtime set (radix-ui in DEPENDENCIES; `base` or `aria` would bring
+              unapproved packages); `--defaults` is the documented "--template=next --preset=nova"; `add` defaults
+              to a confirmation prompt (`--yes` default false), so the approved add command needs `--yes` too (FACT,
+              ui.shadcn.com/docs/cli). Colours come from requirements 9.3's tokens in part 3, so the preset's palette
+              is replaced there. A prompt that still appears is a stop
+           Q3 DECIDED (as Q2): user-level installs, no sudo, each verified against its published checksum and removable
+              by deleting its folder; Prashant Sharma runs them (agents never install tools; AGENTS.md):
+              Node.js 26.13.0 from nodejs.org/dist (SHASUMS256.txt) into ~/.local/opt/node-v26.13.0;
+              pnpm 12.18.0 with that Node's npm (`npm install -g pnpm@12.18.0`), since corepack is not relied on (C4);
+              .NET SDK 10.0.403 with Microsoft's dotnet-install.sh (`--version 10.0.403 --install-dir
+              ~/.local/opt/dotnet-10.0.403`, apart from ~/.dotnet, which holds the CLI's user state), ahead of
+              /usr/lib/dotnet (10.0.114) on PATH with DOTNET_ROOT set to it; actionlint 1.7.12 from its GitHub release (checksums file) into
+              ~/.local/bin; Docker: started by Prashant Sharma, 2026-11-10. Still open: the agent's sandbox cannot reach
+              the Docker socket (FACT: "permission denied ... /var/run/docker.sock"), so slice-0-ci's docker steps need
+              the owner to allow it (`/sandbox`) or run them himself; blocks slice-0-ci steps 1, 3 and 6 only
            Q4 U15: minutes of one pull request run and one main-branch run (read from the Actions usage after the
               draft pull request and the merge) -> Prashant Sharma; blocks only the monthly estimate (ADR 0011):
               estimate = minutes per PR run × PR runs a month + minutes per main run × merges a month
            Q5 Story index at the root still shows "aidlc-onboard (prepare) | jobwright-app | to do", although
               part-1/README.md and commit aba6d07 show it done -> the workspace root updates it
-           Q6 pnpm 12 refuses dependency build scripts not in allowBuilds and exits non-zero (FACT, pnpm.io), so
-              create-next-app's own install may stop before a lock file exists (C2) -> Prashant Sharma (design
-              approver): (a) add `--skip-install` to the create-next-app command in new-system.md, and install in
-              slice-0-skeleton once allowBuilds is written (proposed); or (b) name the builds to allow before the
-              recipe runs; blocks slice-0-scaffold
+           Q6 DECIDED (as Q2): the generators install, but no dependency build script runs. They run with
+              PNPM_CONFIG_STRICT_DEP_BUILDS=false in their environment only: nothing is in allowBuilds, so every build
+              script is disallowed (FACT), the install prints a warning instead of exiting (FACT), and pnpm records
+              each ignored build in web/pnpm-workspace.yaml with a placeholder (FACT, pnpm.io/settings/build).
+              slice-0-skeleton step 3 then sets each one to true or false, and strict mode, the default, applies to
+              every later install and to CI. Nothing is committed that loosens a setting. `--skip-install` (the earlier
+              proposal) was dropped: shadcn init and add install packages themselves, so it would only move the
+              failure. Also decided: `--no-agents-md` on create-next-app, because it writes AGENTS.md by default
+              (FACT, nextjs.org create-next-app reference: "--agents-md ... (default)"), and a web/AGENTS.md would
+              become rules every agent loads (R-b). INFERENCE: the variable's name follows the documented
+              PNPM_CONFIG_<SETTING> pattern (shown there for other settings). If pnpm ignores it and still exits,
+              stop; the fallback is web/pnpm-workspace.yaml with `strictDepBuilds: false` for the scaffold only,
+              removed in slice-0-skeleton, which needs the owner
+           Q9 new-system.md's SCAFFOLD differs from slice-0-scaffold's RECIPE by the flags of Q2 and Q6
+              (`--no-agents-md`; shadcn's flags; the environment variable) -> the workspace root records the
+              change in new-system.md (design approver Prashant Sharma; this repository cannot edit ../stories);
+              the bundle's approval stands in until it does
            Q7 new-system.md CI writes `dotnet test --filter Category=Unit`; under xunit.v3 on the Testing Platform
               the option is `--filter-trait "Category=Unit"`, and `--filter` is rejected with exit code 5 (FACT,
               xunit.net) -> Prashant Sharma (design approver) corrects new-system.md; blocks part 3's split gates only
@@ -213,6 +238,9 @@ beyond these (each bundle's USE SKILLS).
 | FACT | `request.sizes().responseBodySize` is the received body size, encoded (as transferred). Chromium-specific notes: UNKNOWN; the budget test runs in Chromium and its stability is checked by three measurements (STOP IF over 5% apart) | playwright.dev/docs/api/class-request | slice-0-ci step 2 |
 | FACT | Dark mode: `use: { colorScheme: 'dark' }` per project, or `page.emulateMedia` | playwright.dev/docs/emulation | slice-0-ci step 2 |
 | FACT | A top-level `permissions:` block sets every permission it does not name to `none`. Whether same-repository pull-request runs receive repository secrets is UNKNOWN (the pages state only the fork rule), so ci.yml references no secret at all | docs.github.com, workflow syntax; using secrets | slice-0-ci step 4 |
+| FACT | create-next-app includes `AGENTS.md` by default (`--agents-md`, "(default)"); `--skip-install`, `--disable-git` and `--no-agent-feedback` exist; `--yes` "uses previous preferences or defaults for all options" | nextjs.org/docs/app/api-reference/cli/create-next-app (updated 2026-09-29) | Q6, slice-0-scaffold |
+| FACT | shadcn `init`: `-t/--template`, `-b/--base` (base, radix, aria), `-p/--preset`, `-y/--yes` (default true), `-d/--defaults` (= `--template=next --preset=nova`), `--no-monorepo`, `--no-rtl`, `--css-variables` (default true). `add`: `-y/--yes` (default false), `-o/--overwrite`. The page does not list init's questions | ui.shadcn.com/docs/cli | Q2, slice-0-scaffold |
+| FACT | Settings come from the command line, environment variables and pnpm-workspace.yaml; the environment form shown is `PNPM_CONFIG_<SETTING>` (for other settings); `strictDepBuilds: false` prints a warning instead of exiting; ignored builds are added to pnpm-workspace.yaml with a placeholder | pnpm.io/settings; pnpm.io/settings/build | Q6 |
 | FACT | pnpm 11+ replaces onlyBuiltDependencies with `allowBuilds`; packages not listed are disallowed; `strictDepBuilds` defaults to true, so an install with unreviewed build scripts exits non-zero; `--frozen-lockfile` is the CI default when a lock file exists | pnpm.io/settings/build; pnpm.io/cli/install | Q6; slice-0-skeleton step 3 |
 
 ## Challenged
