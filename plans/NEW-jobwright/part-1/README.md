@@ -6,7 +6,7 @@ SOURCE     ../stories/NEW-jobwright/README.md (provisional key until the tracker
 KIND       new system
 ROUTE      G
 LEVEL      part 1 of 4 in jobwright-app
-PINS       (aidlc-plan copies it from slice 0's bundle)
+PINS       spec v3 · plan v1 · contract none
 ```
 
 Each stage marks its own row when it ends: done, or `stopped: <reason>`. The build row reads doing while slices remain.
@@ -16,5 +16,5 @@ the default branch only through the merge. A re-plan or a revision resets the la
 | Stage | Runs in | Status |
 |---|---|---|
 | aidlc-onboard (prepare) | jobwright-app | done (2026-11-09, branch feat/NEW-jobwright-onboard-prepare) |
-| slice 0 | jobwright-app | to do |
+| slice 0 | jobwright-app | doing: aidlc-plan drafted plan v1 and bundles slice-0-scaffold, slice-0-skeleton, slice-0-ci (2026-11-10), waiting for the tech lead's approval and OPEN Q1, Q2, Q3, Q6, Q8 |
 | aidlc-onboard (confirm) | jobwright-app | to do |
