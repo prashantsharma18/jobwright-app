@@ -184,13 +184,16 @@ OPEN       Q1 DECIDED (by Claude at Prashant Sharma's instruction, 2026-11-10): 
               .NET SDK 10.0.403 with Microsoft's dotnet-install.sh (`--version 10.0.403 --install-dir
               ~/.local/opt/dotnet-10.0.403`, apart from ~/.dotnet, which holds the CLI's user state), ahead of
               /usr/lib/dotnet (10.0.114) on PATH with DOTNET_ROOT set to it; actionlint 1.7.12 from its GitHub release (checksums file) into
-              ~/.local/bin; Docker: started by Prashant Sharma, 2026-11-10. Still open: the agent's sandbox cannot reach
-              the Docker socket (FACT: "permission denied ... /var/run/docker.sock"), so slice-0-ci's docker steps need
-              the owner to allow it (`/sandbox`) or run them himself; blocks slice-0-ci steps 1, 3 and 6 only
+              ~/.local/bin; Docker: started by Prashant Sharma, 2026-11-10. Docker for the agent (decided as Q2): the
+              agent's sandbox cannot reach the socket (FACT: "permission denied ... /var/run/docker.sock"), and the
+              socket can stop or change any container, k3d's included (AGENTS.md: agents never change a cluster). So
+              slice-0-scaffold and slice-0-skeleton run without it; for the slice-0-ci session only, with the k3d
+              cluster stopped, Prashant Sharma allows the socket through `/sandbox` (in .claude/settings.local.json,
+              never committed) and removes it when that session ends
            Q4 U15: minutes of one pull request run and one main-branch run (read from the Actions usage after the
               draft pull request and the merge) -> Prashant Sharma; blocks only the monthly estimate (ADR 0011):
               estimate = minutes per PR run × PR runs a month + minutes per main run × merges a month
-           Q5 Story index at the root still shows "aidlc-onboard (prepare) | jobwright-app | to do", although
+           Q5 (patch prepared, see Q9) Story index at the root still shows "aidlc-onboard (prepare) | jobwright-app | to do", although
               part-1/README.md and commit aba6d07 show it done -> the workspace root updates it
            Q6 DECIDED (as Q2): the generators install, but no dependency build script runs. They run with
               PNPM_CONFIG_STRICT_DEP_BUILDS=false in their environment only: nothing is in allowBuilds, so every build
@@ -208,10 +211,12 @@ OPEN       Q1 DECIDED (by Claude at Prashant Sharma's instruction, 2026-11-10): 
            Q9 new-system.md's SCAFFOLD differs from slice-0-scaffold's RECIPE by the flags of Q2 and Q6
               (`--no-agents-md`; shadcn's flags; the environment variable) -> the workspace root records the
               change in new-system.md (design approver Prashant Sharma; this repository cannot edit ../stories);
-              the bundle's approval stands in until it does
+              the bundle's approval stands in until it does. Patch prepared 2026-11-10 (decided at his instruction):
+              new-system.md v3 (the scaffold flags, @types/react-dom and Microsoft.Extensions.Hosting, `--filter-trait`,
+              an empty APPROVED v3 line for him) and the story index rows of Q5; applied by a session at the root
            Q7 new-system.md CI writes `dotnet test --filter Category=Unit`; under xunit.v3 on the Testing Platform
               the option is `--filter-trait "Category=Unit"`, and `--filter` is rejected with exit code 5 (FACT,
-              xunit.net) -> Prashant Sharma (design approver) corrects new-system.md; blocks part 3's split gates only
+              xunit.net) -> Prashant Sharma (design approver) corrects new-system.md (patch prepared, see Q9); blocks part 3's split gates only
               (slice 0 runs every test in one gate)
            Q8 DECIDED (Prashant Sharma, 2026-11-10): the design's U13 fallback (a reflection test over project
               references, no library) is pre-approved; if ArchUnitNET does not run, slice-0-skeleton writes it and
