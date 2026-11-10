@@ -6,7 +6,7 @@ File: `plans/NEW-jobwright/part-1/progress-slice-0-scaffold.md`, committed on it
 with the slice; the compliance reviewer and the slice runner read it.
 
 ```text
-STATUS      stopped: generators wrote outside web/, api/, .config/ (global.json and dotnet-tools.json at the root, step 4)
+STATUS      paused: recipe review
 MODE        hands-on
 ```
 
@@ -54,9 +54,41 @@ MODE        hands-on
       - `dotnet new tool-manifest` on SDK 10.0.403 wrote ./dotnet-tools.json (root), not .config/dotnet-tools.json
       Both are outside MAY CHANGE and match STOP IF "a generator writes outside web/, api/ or .config/". The output is
       left untracked in place (web/, api/, global.json, dotnet-tools.json) for the person's decision; nothing staged
-- [ ] 5 List files, stage generator output by path (no bin/, obj/, node_modules/, .next/), commit with three Recipe:
-      trailers; record sha, versions, file counts and added packages here
-- [ ] 6 CHECKPOINT: STATUS `paused: recipe review`
+      RESUMED 2026-11-10 under option A (see Decisions): `dotnet tool install dotnet-ef --version 10.0.14` exit 0,
+      entry added to ./dotnet-tools.json (rollForward false)
+- [x] 4 done
+- [x] 5 Recipe commit 06a65b0b8324d591efe6670cdf5edafe0cefeea0 `chore(scaffold): generate web and api skeletons
+      (NEW-jobwright slice 0)`, three trailers. 59 files staged by path from the list (`git add --pathspec-from-file`),
+      staged list equal to the generated list; no bin/, obj/, node_modules/, .next/, agent or tool file.
+      Changed paths outside plans/: web/ (26), api/ (31), global.json, dotnet-tools.json (both under option A).
+      Versions used: node v26.13.0, pnpm 12.18.0, .NET SDK 10.0.403, xunit.v3.templates 4.0.2, dotnet-ef 10.0.14
+      Files per tool:
+        create-next-app 16.4.5: 17 committed (18 written; web/next-env.d.ts is ignored by the generated web/.gitignore)
+        shadcn 4.23.0: 9 new (web/components.json, web/src/lib/utils.ts, web/src/components/ui/{button,card,
+          dropdown-menu,separator,sheet,skeleton,tooltip}.tsx); changed web/package.json, web/pnpm-lock.yaml,
+          web/src/app/globals.css
+        dotnet-sdk 10.0.403: 33 (api/Jobwright.slnx, empty; 3 hosts: 15; SharedKernel and 4 modules: 10, each a csproj
+          and Class1.cs; 2 xunit3 projects: 6, each csproj, UnitTest1.cs, xunit.runner.json; ./global.json;
+          ./dotnet-tools.json)
+      Packages added, resolved version, against new-system.md DEPENDENCIES and Pinned versions:
+        web dependencies: next 16.4.5 (listed, pin 16.4.5) · react 19.3.0 and react-dom 19.3.0 (listed, pin 19.3.1) ·
+          radix-ui 1.8.1, class-variance-authority 0.7.1, lucide-react 1.70.0, tw-animate-css 1.4.0 (listed, at pin) ·
+          cn 0.5.2 (NOT LISTED; added by shadcn, imported by every component) · shadcn 4.23.0 (listed as scaffolding
+          only; placed in dependencies)
+        web devDependencies: typescript 5.9.3 (listed, at pin) · tailwindcss 4.3.5 (listed, at pin) · eslint-config-next
+          16.4.5 (listed, at pin) · @types/react 19.3.0 (listed, at pin) · @types/react-dom 19.3.0 (listed v3, within
+          19.3.x) · @types/node 20.19.43 (listed, pin 26.6.6) · eslint 9.39.5 (listed, pin 10.14.0; pnpm: deprecated) ·
+          @tailwindcss/turbopack 4.3.5 (NOT LISTED; DEPENDENCIES names @tailwindcss/postcss, not added)
+        web, listed but not direct: clsx, tailwind-merge (replaced by cn), @tailwindcss/postcss
+        web/pnpm-workspace.yaml: allowBuilds sharp: false, unrs-resolver: false (no build allowed or run)
+        api: Microsoft.AspNetCore.OpenApi 10.0.14 (Jobwright.Api; listed, at pin) · Microsoft.Extensions.Hosting
+          10.0.14 (Jobwright.Worker; listed v3, at pin) · xunit.v3.mtp-v2 4.0.2 (both test projects; NOT LISTED;
+          DEPENDENCIES names xunit.v3, xunit.runner.visualstudio, Microsoft.NET.Test.Sdk, none of them added) ·
+          no coverlet.collector
+        api target frameworks: net10.0 in 8 projects; net8.0 in both xunit3 test projects (the template's default)
+        tools: dotnet-ef 10.0.14 (listed, at pin)
+- [x] 6 CHECKPOINT: STATUS `paused: recipe review` — the person reviews 06a65b0 as generated code: the solution format
+      (.slnx), the package list above against DEPENDENCIES (plan Q1), the net8.0 test projects, any unexpected file
 
 ## Skills loaded
 - aidlc:committing-changes — plugin version 5.0.0
@@ -91,6 +123,12 @@ MODE        hands-on
 - Docker: the bundle's step 1 asks that `docker version` answers; plan Q3 (commit 38823a5, after the bundle) runs this
   slice without the socket. The daemon was started by Prashant Sharma; the sandbox denial is accepted as Q3 intends —
   confirm with Prashant Sharma in the recipe review
+- Option A, decided by Prashant Sharma (tech lead), 2026-11-10, recorded here at his instruction: the recipe commit
+  includes ./global.json (written by the xunit3 template's post-action) and ./dotnet-tools.json (written by
+  `dotnet new tool-manifest` on SDK 10.0.403), both outside the bundle's MAY CHANGE. Why: slice-0-skeleton already
+  plans global.json at the root, and a root manifest is SDK 10's default, found by `dotnet tool restore`. Follow-up for
+  aidlc-plan (not edited here): the bundle's MAY CHANGE and plan FILES (`.config/dotnet-tools.json` ->
+  `dotnet-tools.json`; global.json now created by the scaffold, then completed with the SDK pin in slice-0-skeleton)
 
 ## Assumptions
 - The pinned toolchain is used through `PATH=~/.local/opt/node-v26.13.0/bin:~/.local/opt/dotnet-10.0.403:$PATH` and
