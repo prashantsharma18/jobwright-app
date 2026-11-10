@@ -306,8 +306,10 @@ APPROVAL   plan.md v1 (commit a522963, with Q1 and Q8 as recorded in the commit 
            Prashant Sharma (tech lead), 2026-11-10, with its three bundles; recorded at his instruction.
            Conditions: risks C1, C2, C6 and C7 accepted by him; Q8 pre-approved; Q1 decided at his instruction;
            Q3 (the toolchain install) and Q9 (new-system.md at the workspace root) still open
-           plan.md v2 (commit            , with the bundles slice-0-skeleton and slice-0-ci at plan v2) approved by
-                       (tech lead),           . Conditions:
+           plan.md v2 (commit e60727f) approved by Prashant Sharma (tech lead), 2026-11-10; recorded at his
+           instruction. Conditions: the risks accepted in "Challenged (v2)" (V1, V8, and V6's part 3 risk) accepted
+           with the plan; Q10 open and blocking slice-0-skeleton. The bundles slice-0-skeleton and slice-0-ci at
+           plan v2 (commit e60727f) approved by him, 2026-11-10; recorded at his instruction
 ```
 
 ## Hidden decisions flagged for their owner
