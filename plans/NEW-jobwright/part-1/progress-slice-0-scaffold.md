@@ -6,7 +6,7 @@ File: `plans/NEW-jobwright/part-1/progress-slice-0-scaffold.md`, committed on it
 with the slice; the compliance reviewer and the slice runner read it.
 
 ```text
-STATUS      stopped: the sandbox blocks the generators' network and user-level caches (step 2); nothing generated
+STATUS      doing
 MODE        hands-on
 ```
 
@@ -32,6 +32,8 @@ MODE        hands-on
       d) as c, with PNPM_CONFIG_STORE_DIR in the temp folder: the same lock error; a probe install in a temp folder
          then showed registry.npmjs.org:443 denied by the sandbox's network filter
       Needs the person: see "Context gaps" and the session report
+      RESUMED 2026-11-10: Prashant Sharma widened the sandbox for this session (see Deviations); step 2 re-runs
+      from the clean tree
 - [ ] 3 shadcn@4.23.0 init, then add, exact commands — files: web/** — check: exit 0, no prompt, no build script run,
       web/pnpm-workspace.yaml allows no build
 - [ ] 4 dotnet new sln/webapi/worker/console/classlib, xunit.v3.templates install, xunit3, tool-manifest, dotnet-ef —
@@ -50,6 +52,11 @@ MODE        hands-on
 - Attempts c) and d) moved pnpm's cache, data, state and store folders to the session temp folder by environment
   variables, leaving the approved command unchanged — to stay inside the sandbox; neither succeeded. A recipe run that
   succeeds this way must be recorded here, since the store location is not part of the approved recipe
+- The recipe runs in a sandbox widened by Prashant Sharma, 2026-11-10, in .claude/settings.local.json (never committed;
+  excluded by .git/info/exclude): network to registry.npmjs.org, ui.shadcn.com, api.nuget.org; writes to
+  ~/.cache/pnpm, ~/.local/share/pnpm, ~/.local/state/pnpm, ~/.nuget, ~/.local/share/NuGet, ~/.templateengine,
+  ~/.dotnet. No Docker socket (plan Q3). pnpm uses its default cache and store; no XDG or store variable is set. To be
+  removed when this slice's recipe commit is done (as plan Q3 does for the socket)
 
 ## Amended assertions seen red
 - none
