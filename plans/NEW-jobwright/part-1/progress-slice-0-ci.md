@@ -6,7 +6,7 @@ File: `plans/NEW-jobwright/part-1/progress-slice-0-ci.md`, committed on its own 
 then with the slice; the compliance reviewer and the slice runner read it.
 
 ```text
-STATUS      doing
+STATUS      paused: checkpoint 4 (the workflow's permissions and every uses: line, before ci.yml is committed)
 MODE        hands-on
 ```
 
@@ -32,9 +32,9 @@ MODE        hands-on
       Real run: OPEN, blocked by the machine (see Decisions, E1): Docker Desktop refused to publish 127.0.0.1:55432
       ("ports are not available: exposing port TCP 127.0.0.1:55432 -> 127.0.0.1:0: /forwards/expose returned
       unexpected status: 500"); dev.sh exited 125 and its cleanup left no container, no credentials, no port bound
-- [ ] 2 Browser harness, tests first — files: web/package.json, web/pnpm-lock.yaml, web/playwright.config.ts,
+- [x] 2 Browser harness, tests first (06e18b0 the dependencies, a03108a the harness) — files: web/package.json, web/pnpm-lock.yaml, web/playwright.config.ts,
       web/tests/e2e/{skeleton,accessibility,budget}.spec.ts, web/.gitignore, web/eslint.config.mjs, scripts/check.sh.
-      Done, NOT COMMITTED (the budget waits for the checkpoint):
+      Committed after checkpoint 2:
       - `pnpm -C web add -D -E @playwright/test@1.65.0 @axe-core/playwright@4.14.0`: the lock adds exactly five
         packages: @playwright/test, playwright, playwright-core 1.65.0 (Microsoft's), @axe-core/playwright and
         axe-core 4.14.0 (Deque's); no build script; the only other lock change is next's peer key naming
@@ -56,12 +56,24 @@ MODE        hands-on
         fallback, not Geist (see Decisions, E3); not-found page at 360 light: Next's default "404 | This page could not
         be found."
       CHECKPOINT 2: Prashant Sharma looks at the four screenshots, the measured bytes and the number
-- [ ] 3 Images — files: Dockerfile.web, Dockerfile.api, Dockerfile.worker, .dockerignore, web/next.config.ts,
-      scripts/check.sh — check: digests resolved from the registries (command and output recorded); `scripts/check.sh
-      build` exit 0; each image runs as non-root; web answers its home page, the API /health/live, the worker stays up
-- [ ] 4 CI — files: .github/workflows/ci.yml — check: actionlint clean; every `uses:` a 40-character SHA matching its
-      tag by `git ls-remote`; `git grep -n "secrets\." .github` empty. CHECKPOINT: permissions and every `uses:` line
-      read by the person before commit
+- [x] 3 Images (2a861a8; 869961e moves Playwright to the standalone server) — `scripts/check.sh build` exit 0: next
+      build compiled; dotnet build -c Release "0 Warning(s) 0 Error(s)"; the three docker builds tagged
+      jobwright-{web,api,worker}:local. FACT from `docker image inspect`: aspnet and runtime 10.0.14 set APP_UID=1654
+      and ASPNETCORE_HTTP_PORTS=8080, default user root; node:26.13.0 has user node (1000), npm 11.20.0, no corepack.
+      Each image started (no host port published, E1; probed from inside its network namespace with the node image's
+      curl): web uid 1000 (node), / 200 with `<h1 class="text-3xl font-semibold">Jobwright</h1>`; API uid 1654 (app),
+      /health/live "Healthy 200"; worker uid 1654, running, 0 restarts, logging "Worker running at", /app/admin holds
+      Jobwright.Admin.dll. Containers removed. With output: 'standalone', next start warned '"next start" does not work
+      with "output: standalone" configuration. Use "node .next/standalone/server.js" instead.', so Playwright's
+      webServer now copies .next/static and runs server.js (restatement point 5); browser 8 passed, budget 1 passed at
+      the same 135,165 bytes, no warning. Lint and test exit 0 after the step
+- [ ] 4 CI — .github/workflows/ci.yml written, NOT COMMITTED (checkpoint 4). Every action SHA matches its tag
+      (`git ls-remote`, annotated tags peeled): checkout v7.0.1, setup-node v7.1.0, pnpm/action-setup v6.1.1,
+      setup-dotnet v6.1.0, upload-artifact v7.0.2 (and cache v6.1.0, not used). Inputs read from each action.yml at
+      its SHA. actionlint 1.7.12 sha256 8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8 from
+      actionlint_1.7.12_checksums.txt (its GitHub release). Local: `actionlint -shellcheck= -pyflakes=` exit 0; the
+      SHA rule passes 24 uses: lines and catches `actions/checkout@v7` in a scratch file; `git grep -n "secrets\."
+      .github` finds nothing. CHECKPOINT 4: Prashant Sharma reads the permissions and every uses: line
 - [ ] 5 Draft pull request (Prashant Sharma pushes): one drill commit breaking all six gates, then its revert; each
       gate's failing line and the run links recorded here; minutes of one full run (U15)
 - [ ] 6 Every AGENTS.md command run locally, counts read; boundary check and self-review (aidlc-build steps 8, 9);
@@ -110,6 +122,17 @@ Command: `docker buildx imagetools inspect <tag>` (Docker 29.4.2), 2026-11-11; t
   (part 3, D9). Listed in the pull request
 - E4 (step 2) The skeleton test also asserts that the page logs no console error (testing-in-browser), inside the
   same test, so the counts stay as DONE WHEN gives them
+- E6 (step 3) Dockerfile.web's `npm install --global pnpm@12.18.0` prints "1 package has install scripts not yet
+  covered by allowScripts: pnpm@12.18.0 (preinstall: node install.js; postinstall: node install.js)": npm 11.20.0
+  does not run them, and pnpm works without them (the build succeeds). Left so: running them is a script allowance
+- E7 (step 3, carried from slice-0-skeleton) The API image logs "Failed to determine the https port for redirect"
+  (UseHttpsRedirection) and serves /health/live over http with 200; the redirect never applies in the image. Not
+  changed (no DO step names Program.cs); part 3's chart and /health/ready slice decide it
+- E8 (step 4) ci.yml choices: actionlint runs with `-shellcheck= -pyflakes=`, as the runner's own shellcheck and
+  pyflakes are not pinned; the SHA rule is a grep step in the lint job (actionlint alone does not enforce SHAs);
+  checkout keeps no credentials (`persist-credentials: false`); setup-node's pnpm cache and setup-dotnet's NuGet
+  cache are keyed by web/pnpm-lock.yaml and api/**/packages.lock.json; each job has a timeout (10 to 30 minutes);
+  setup-dotnet's LTS pre-pass is left at its default
 - E5 (step 2) "10 KB" is read as 10,240 bytes; with 10,000 the budget would be 170,000. Confirmed by Prashant
   Sharma at checkpoint 2
 
