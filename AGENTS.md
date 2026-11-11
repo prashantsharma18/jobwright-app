@@ -27,7 +27,8 @@ Every pinned version: `../stories/NEW-jobwright/new-system.md`, **Pinned version
   `feat/<KEY>-<part>`. Part indexes: `plans/<KEY>/part-<n>/README.md`.
 - Tests first: a failing test before any code; for a defect, a test that reproduces it.
 - Every change goes through a pull request, merged only when every check has run and passed (spec E28). Prashant
-  Sharma authors and merges; GitHub Free enforces nothing (KL1, KL2).
+  Sharma authors and merges; `main` requires the six checks setup, lint, test, build, browser and budget,
+  administrators included, no review (KL2, ADR 0014).
 
 ## Map
 Full map: `docs/codebase-map.md`. Read it before planning a change. The layout (ADR 0001, `new-system.md` PATHS);
@@ -43,7 +44,9 @@ Full map: `docs/codebase-map.md`. Read it before planning a change. The layout (
 <!-- On route G, a command written before slice 0 reads `(not yet run)` until `aidlc-onboard` confirms it. -->
 From the repository root, with the pinned toolchain first on PATH (the default shell has neither):
 `export PATH=~/.local/opt/node-v26.13.0/bin:~/.local/opt/dotnet-10.0.403:$PATH DOTNET_ROOT=~/.local/opt/dotnet-10.0.403`
-- Tests and lint, must pass before you report done: `scripts/check.sh lint && scripts/check.sh test`
+- Tests and lint, must pass before you report done: `scripts/check.sh lint && scripts/check.sh test`; for any change
+  under `web/`, also `scripts/check.sh browser` and `scripts/check.sh budget`, in the pinned image below (decision 1,
+  `../stories/NEW-jobwright/decisions-2026-11-11.md`)
 - Build (web, API and the three images): `scripts/check.sh build`
 - Browser tests (page check, AC12 axe scan) and the AC26 budget: `scripts/check.sh browser`, `scripts/check.sh budget`.
   The host has no Playwright browser: locally, run each inside the pinned image (`<command>` in `bash -c`, because
@@ -77,8 +80,8 @@ Pattern to follow: named where slice 0 has one; the part 3 slice that first appl
 - Telemetry carries only attributes on the allowlist; never personal data (ADR 0009, AC19).
 - Tokens are never readable by page scripts; every route sends the security headers (ADR 0002, ADR 0010; AC14, AC15).
 - Workflows: every `uses:` pinned to a 40-character SHA with a `# vX.Y.Z` comment, no absolute-URL `uses:`; every
-  workflow starts with `permissions: contents: read`; pull-request jobs get no secrets; only the main-branch run reads
-  `STAGING_TOKEN` (ADR 0011). Pattern to follow: `.github/workflows/ci.yml`
+  workflow starts with `permissions: contents: read`; pull-request jobs get no secrets; `STAGING_TOKEN` is read only
+  by the main-branch job that names the environment `staging-release` (ADR 0011, ADR 0014, E31 v4). Pattern to follow: `.github/workflows/ci.yml`
 - Images: built once on `main`, tested by digest, pushed to ghcr.io with `sha-<commit>`, then staging is committed,
   never backwards (Released versions v2, ADR 0012).
 
