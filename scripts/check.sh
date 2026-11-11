@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# The repository's checks, as new-system.md COMMANDS writes them: scripts/check.sh test | lint | build
+# The repository's checks, as new-system.md COMMANDS writes them: scripts/check.sh test | lint | build,
+# and CI's browser and budget gates: scripts/check.sh browser | budget (both build the web app first)
 set -euo pipefail
 
 # Tool telemetry off: these tools send usage data to their vendors by default (plan Q13).
@@ -21,8 +22,17 @@ case "${1:-}" in
     # The three docker builds join in slice-0-ci.
     pnpm -C web build && dotnet build api/Jobwright.slnx -c Release
     ;;
+  browser)
+    # The page check and the AC12 axe scan: 360 and 1440 px, light and dark.
+    pnpm -C web build &&
+      pnpm -C web exec playwright test --project=360-light --project=360-dark --project=1440-light --project=1440-dark
+    ;;
+  budget)
+    # AC26: the first load's script bytes against the budget.
+    pnpm -C web build && pnpm -C web exec playwright test --project=budget
+    ;;
   *)
-    echo "usage: scripts/check.sh test|lint|build" >&2
+    echo "usage: scripts/check.sh test|lint|build|browser|budget" >&2
     exit 2
     ;;
 esac

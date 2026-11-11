@@ -6,7 +6,7 @@ File: `plans/NEW-jobwright/part-1/progress-slice-0-ci.md`, committed on its own 
 then with the slice; the compliance reviewer and the slice runner read it.
 
 ```text
-STATUS      paused: checkpoint 2 (screenshots, measured bytes and the budget, before the budget is committed)
+STATUS      doing
 MODE        hands-on
 ```
 
@@ -15,7 +15,8 @@ MODE        hands-on
   with its ten flagged points (see Assumptions)
 
 ## Pauses confirmed (by the person)
-- none yet
+- checkpoint 2 confirmed by Prashant Sharma, 2026-11-11 (recorded at his instruction; with it, E5: "10 KB" is
+  10,240 bytes, so the budget is 163,840)
 
 ## Session plan
 - [x] 0 Baseline before any change: `scripts/check.sh lint && scripts/check.sh test` exit 0 (web 1 file, 2 passed;
@@ -109,7 +110,8 @@ Command: `docker buildx imagetools inspect <tag>` (Docker 29.4.2), 2026-11-11; t
   (part 3, D9). Listed in the pull request
 - E4 (step 2) The skeleton test also asserts that the page logs no console error (testing-in-browser), inside the
   same test, so the counts stay as DONE WHEN gives them
-- E5 (step 2) "10 KB" is read as 10,240 bytes; with 10,000 the budget would be 170,000. Confirm at checkpoint 2
+- E5 (step 2) "10 KB" is read as 10,240 bytes; with 10,000 the budget would be 170,000. Confirmed by Prashant
+  Sharma at checkpoint 2
 
 ## Assumptions
 Confirmed by Prashant Sharma, 2026-11-11 (restatement):
