@@ -6,7 +6,10 @@
     "dev": "next dev -H 127.0.0.1 -p 55300",
     "build": "next build",
     "start": "next start -H 127.0.0.1 -p 55300",
-    "lint": "eslint"
+    "lint": "eslint .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "class-variance-authority": "0.7.1",
