@@ -6,9 +6,8 @@ File: `plans/NEW-jobwright/part-1/progress-slice-0-skeleton.md`, committed on it
 then with the slice; the compliance reviewer and the slice runner read it.
 
 ```text
-STATUS      stopped: the sandbox refuses Unix sockets, so `dotnet test` and `dotnet format` (check.sh test and lint)
-            cannot run here; every other step is done and committed. Second session (2026-11-11): unchanged, the
-            unsandboxed run refused by the auto-mode classifier; a person runs the full check.sh, or allows it
+STATUS      done (2026-11-11), on equivalent local evidence (D8): `scripts/check.sh` itself has not run end to end
+            in an agent session; Prashant Sharma runs it once before pushing
 MODE        hands-on
 ```
 
@@ -52,7 +51,7 @@ MODE        hands-on
       ArchUnitNET refused the rule ("The rule requires positive evaluation, not just absence of violations") -> D6.
       Re-proved red with empty modules: "TemporaryViolation does depend on Jobwright.Modules.Identity.TemporaryIdentity";
       and the C11 guard red without the Tenancy.Contracts reference: "Not found: Jobwright.Modules.Tenancy.Contracts"
-- [ ] 8 scripts/check.sh and the web scripts (25b34e1); formatting pass D7 (2b73ff0). Lint seen red once with a
+- [x] 8 scripts/check.sh and the web scripts (25b34e1); formatting pass D7 (2b73ff0). Lint seen red once with a
       temporary file (never committed), `scripts/check.sh lint` exit 1: "8:5 error React Hook "useState" is called
       conditionally ... react-hooks/rules-of-hooks" and "10:10 warning img elements must have an alt prop ...
       jsx-a11y/alt-text" (D4 resolved: both plugins run under ESLint 10.14.0). Verified here: pnpm -C web lint,
@@ -67,11 +66,14 @@ MODE        hands-on
       the unsandboxed run was refused again by the auto-mode classifier. Re-verified in the sandbox, no code changed:
       web test 1 file, 2 passed; `dotnet build -m:1` 0 warnings, 0 errors; Api.Tests and ArchitectureTests each
       Total 1, Failed 0, Skipped 0; `pnpm -C web build` exit 0 (fonts hosts allowed, D5); Release build 0 warnings,
-      0 errors. Step 9's checks repeated, all clean
-- [ ] 9 Boundary check done early: `git diff --name-only b94004d HEAD` has nothing outside MAY CHANGE and nothing in
+      0 errors. Step 9's checks repeated, all clean. `dotnet format --no-restore` fails the same way (Roslyn's
+      BuildHost pipe, BuildHostProcessManager.GetBuildHostAsync); `dotnet format whitespace api --folder
+      --verify-no-changes` exit 0. Closed under D8
+- [x] 9 Boundary check done early: `git diff --name-only b94004d HEAD` has nothing outside MAY CHANGE and nothing in
       MUST NOT; DONE WHEN greps (placeholders with ':!plans', net8.0/TestingPlatformDotnetTestSupport, ports, 3000) find
       nothing; test projects reference only xunit.v3.mtp-v2 of xunit's packages; no suppression or skip; check.sh exports
-      the three opt-outs. Self-review done (below). Open: repeat after the full run, then report and index row
+      the three opt-outs. Self-review done (below). Repeated in the second session (step 8), all clean
+- [x] 10 Report given in the session; index row marked; this note and the index committed together
 
 ## Checkpoint 2: lock files (for Prashant Sharma)
 Read from the ten api/**/packages.lock.json (net10.0 and net10.0/linux-x64), commit 5c3af0d.
@@ -192,6 +194,29 @@ Read from the ten api/**/packages.lock.json (net10.0 and net10.0/linux-x64), com
   src/components/ui from the gate. This met STOP IF "a generated file would need editing outside what a DO step
   names", decided under his delegation. After each later `shadcn add`, run Prettier the same way. Decided by Claude
   at Prashant Sharma's instruction, 2026-11-11
+
+- D8 (step 8) The slice closes on equivalent local evidence, because no agent session here can run
+  `scripts/check.sh lint` and `test` end to end (Unix sockets refused; the unsandboxed run refused twice by the
+  auto-mode classifier). Covered: every web step of check.sh as written; `dotnet test` by running both test
+  applications directly (same tests, same runner, Total 2, Failed 0, Skipped 0); `dotnet format` by its whitespace
+  check in folder mode (exit 0) and the build under TreatWarningsAsErrors (0 warnings). INFERENCE: with no
+  .editorconfig, `dotnet format`'s style rules stay below warning severity and its analyzer rules already fail the
+  build, so the whole command would report nothing more; not proved. Not lowered: no threshold, suppression or skip.
+  Before pushing, Prashant Sharma runs `scripts/check.sh lint && scripts/check.sh test && scripts/check.sh build`;
+  a red result reopens this slice. slice-0-ci's CI is the first trusted run. Decided by Claude at Prashant Sharma's
+  instruction ("take appropriate decisions on my behalf"), 2026-11-11
+- D9 (closing the open items, same instruction, 2026-11-11):
+  D5 fonts: keep `next/font/google` for slice 0; slice-0-ci gives the web build job and Dockerfile.web's build stage
+  egress to fonts.googleapis.com and fonts.gstatic.com (no new dependency), and part 3 revisits self-hosting with the
+  requirements 9.3 tokens. For slice-0-ci's planner; its bundle is not edited here.
+  D6 relaxed rule: kept; it is removed when part 3's first module type lands (the C11 guard stays).
+  D2 `allowAllUnixSockets`: it brought nothing (sockets still refused) and opens the Docker socket Q3 kept from the
+  agent: remove it from .claude/settings.local.json (Prashant Sharma; agents never edit .claude/**).
+  Slips 1 and 2: history is not rewritten; every commit builds; listed in the pull request.
+  Self-review: the pnpm audit deferral and the UseHttpsRedirection question go to slice-0-ci (trivy gate,
+  Dockerfile.api); the /health/live no-dependency test goes to part 3's /health/ready slice.
+  Commit hook "no ticket key": ignored; NEW-jobwright is the provisional key until the tracker is chosen (Q1)
+  Each stays open to Prashant Sharma's review of the pull request
 
 ## Assumptions
 - The pinned toolchain is used through `PATH=~/.local/opt/node-v26.13.0/bin:~/.local/opt/dotnet-10.0.403:$PATH` and
