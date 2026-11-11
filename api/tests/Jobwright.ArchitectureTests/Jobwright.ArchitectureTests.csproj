@@ -4,8 +4,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
-    <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
+    <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,7 +16,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="xunit.v3.mtp-v2" Version="4.0.2" />
+    <PackageReference Include="xunit.v3.mtp-v2" />
+    <PackageReference Include="TngTech.ArchUnitNET.xUnitV3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Jobwright.Admin\Jobwright.Admin.csproj" />
+    <ProjectReference Include="..\..\src\Jobwright.Api\Jobwright.Api.csproj" />
+    <ProjectReference Include="..\..\src\Jobwright.SharedKernel\Jobwright.SharedKernel.csproj" />
+    <ProjectReference Include="..\..\src\Jobwright.Worker\Jobwright.Worker.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Identity\Jobwright.Modules.Identity.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Identity.Contracts\Jobwright.Modules.Identity.Contracts.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Tenancy\Jobwright.Modules.Tenancy.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Tenancy.Contracts\Jobwright.Modules.Tenancy.Contracts.csproj" />
   </ItemGroup>
 
 </Project>
