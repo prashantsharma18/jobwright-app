@@ -6,7 +6,7 @@ File: `plans/NEW-jobwright/part-1/progress-slice-0-skeleton.md`, committed on it
 then with the slice; the compliance reviewer and the slice runner read it.
 
 ```text
-STATUS      paused: checkpoint 2
+STATUS      doing
 MODE        hands-on
 ```
 
@@ -15,7 +15,8 @@ MODE        hands-on
   with its five flagged points (see Assumptions)
 
 ## Pauses confirmed (by the person)
-- (none yet)
+- checkpoint 2 confirmed by Prashant Sharma, 2026-11-11 — delegated: at his instruction ("take appropriate decision
+  for me") Claude took decision D1 below; his review of the pull request before merge remains the human check
 
 ## Session plan
 - [x] 0 Q12 gate: ../stories/NEW-jobwright/new-system.md:137 APPROVED v5 names xunit.v3.mtp-v2 4.0.2; no version after
@@ -96,7 +97,19 @@ Read from the ten api/**/packages.lock.json (net10.0 and net10.0/linux-x64), com
 - none (the bundle lists none)
 
 ## Decisions made while working (for the PR)
-- (none yet)
+- D1 (checkpoint 2) TngTech.ArchUnitNET's five dependencies — KEEP: CycleDetection 2.0.0, JetBrains.Annotations
+  2026.2.0, Mono.Cecil 0.11.6, Newtonsoft.Json 13.0.4, System.ValueTuple 4.6.2, as the approved
+  TngTech.ArchUnitNET.xUnitV3 0.13.5's own graph. Why: ADR 0001 names a pinned library for the module rule and
+  new-system.md approves this one; the five are test-only (ArchitectureTests; no image ships them); Newtonsoft.Json
+  13.0.4 is past the 13.0.1 fix of GHSA-5crp-9r3c-p9vr; if U13 fails at step 6, Q8's fallback removes all six.
+  Decided by Claude at Prashant Sharma's instruction, 2026-11-11. Follow-up for the workspace root (not edited here):
+  new-system.md's v5 review list names System.Net.Http and System.Text.RegularExpressions for ArchUnitNET; the design
+  approver records the five above in place of them (net10.0 prunes those two). Listed in the pull request
+- D2 Sandbox: Prashant Sharma set `sandbox.network.allowAllUnixSockets: true` in .claude/settings.local.json
+  (2026-11-11), which also opens the Docker socket that plan Q3 kept from the agent; the agent still never uses it
+  (AGENTS.md). In this session it has no effect yet: `socket(AF_UNIX)` is still refused (Python: "Operation not
+  permitted"; MSBuild: SocketException 13, 81 of 81 node starts), so `-m:1` stays. If it still fails after a session
+  restart, the setting brings nothing and can be removed, which restores Q3's protection — confirm with Prashant Sharma
 
 ## Assumptions
 - The pinned toolchain is used through `PATH=~/.local/opt/node-v26.13.0/bin:~/.local/opt/dotnet-10.0.403:$PATH` and
