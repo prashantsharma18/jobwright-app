@@ -33,7 +33,7 @@ run is the trusted one above.
 ## Tests
 | Item | Test | Local | Trusted CI |
 |---|---|---|---|
-| AC12 (harness) | web/tests/e2e/accessibility.spec.ts `AC12 every page has no WCAG 2.2 AA violation` × 360/1440, light/dark | pass ×4 | pass ×4 |
+| AC12 (harness) | web/tests/e2e/accessibility.spec.ts `AC12 every page has no WCAG 2.2 AA violation` × 360/1440, light/dark. Dark is not covered: the projects emulate `prefers-color-scheme` but the theme switches on a `.dark` class that nothing sets, so all four scan the light page (review-record M1; owed by part 3's theme slice) | pass ×4 (light ×4) | pass ×4 (light ×4) |
 | AC26 (harness) | web/tests/e2e/budget.spec.ts `AC26 first load stays within the script budget` (163,840 B = 135,165 × 1.2, next 10 KiB; E5) | pass | pass |
 | page | web/tests/e2e/skeleton.spec.ts `home page answers with the Jobwright heading` (also: no console error, E4) × 4 projects | pass ×4 | pass ×4 |
 | K2 | api/tests/Jobwright.Api.Tests/HealthLiveTests.cs `HealthLive_answers_200_without_authentication` | pass | pass |
@@ -52,7 +52,7 @@ Deterministic checks over the tested tree; run for this table on 2026-11-11 unle
 | Health check: dev.sh's real run on the new ports | API `/health/live` 200 "Healthy" on 127.0.0.1:15080; web 200 with the heading on 15300; Keycloak 302 on 18080; PostgreSQL accepting on 15432; 127.0.0.1 only; clean stop (no container, credentials, listener or process) | local only: progress-slice-0-ci.md step 6, two runs (before and after eb0cece) |
 | Images run as non-root and answer | web uid 1000 `/` 200; API uid 1654 `/health/live` 200; worker uid 1654 up | local only: progress-slice-0-ci.md step 3 |
 | Windows ports (R-j) | dynamic range from 49152; none of the four ports in the 20 exclusion ranges or listening | local only: step 6 |
-| Direct dependencies at their pins | 35 of 35 exact and at new-system.md v6's Pinned versions (21 npm, 14 NuGet); lock files agree (CI's frozen and locked restores) | this table |
+| Direct dependencies at their pins | 35 of 35 exact and at new-system.md v6's Pinned versions (21 npm; 14 NuGet central pins, of which 5 are referenced by a project; review-record L14); lock files agree (CI's frozen and locked restores) | this table |
 | No placeholder | `git grep -i -E "weatherforecast\|Class1\|UnitTest1"` none | this table |
 | .NET target and test platform | no `net8.0` or `TestingPlatformDotnetTestSupport` in api/; both test projects reference only xunit.v3.mtp-v2 (4.0.2) | this table |
 | Telemetry off (Q13) | check.sh exports all three; ci.yml and dev.sh all three; Dockerfile.web NEXT_TELEMETRY_DISABLED; Dockerfile.api and .worker both .NET names | this table and step 6 |
