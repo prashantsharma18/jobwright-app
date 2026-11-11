@@ -1,6 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
-// Browser tests run against the production build (`pnpm build` first), started on 127.0.0.1:55300 (plan K4).
+// Browser tests run against the production build (`pnpm build` first), started on 127.0.0.1:55300 (plan K4) by the
+// standalone server.js that Dockerfile.web ships; `next start` does not support output: "standalone".
 const baseURL = "http://127.0.0.1:55300";
 
 const widths = [360, 1440] as const;
@@ -16,7 +17,10 @@ export default defineConfig({
     trace: "retain-on-failure",
   },
   webServer: {
-    command: "pnpm start",
+    // server.js serves .next/static only from inside the standalone folder (nextjs.org, output: standalone)
+    command:
+      "cp -R .next/static .next/standalone/.next/ && node .next/standalone/server.js",
+    env: { PORT: "55300", HOSTNAME: "127.0.0.1" },
     url: baseURL,
     reuseExistingServer: false,
   },
