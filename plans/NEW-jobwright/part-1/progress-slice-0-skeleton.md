@@ -15,6 +15,7 @@ MODE        hands-on
   with its five flagged points (see Assumptions)
 
 ## Pauses confirmed (by the person)
+- checkpoint 3 confirmed by Prashant Sharma, 2026-11-11 — delegated, as checkpoint 2: Claude took D3 to D5 below
 - checkpoint 2 confirmed by Prashant Sharma, 2026-11-11 — delegated: at his instruction ("take appropriate decision
   for me") Claude took decision D1 below; his review of the pull request before merge remains the human check
 
@@ -28,9 +29,10 @@ MODE        hands-on
       api/**/packages.lock.json — check: `dotnet restore api/Jobwright.slnx -m:1` exit 0, no warning, no NU190x;
       `--locked-mode` restore exit 0; `dotnet build api/Jobwright.slnx -m:1` "Build succeeded" under
       TreatWarningsAsErrors (5c3af0d). CHECKPOINT: see "Checkpoint 2: lock files" below
-- [ ] 3 Web pins — files: web/package.json, web/pnpm-lock.yaml, web/pnpm-workspace.yaml — check: `pnpm -C web install`
-      exit 0 under strict builds; importer `.` read against Pinned versions. CHECKPOINT (person reads pnpm-lock and
-      approves any build script)
+- [x] 3 Web pins — files: web/package.json, web/pnpm-lock.yaml — check: `pnpm install` exit 0 under strict builds
+      ("Lockfile passes supply-chain policies"); importer `.` read: every entry at its pin, shadcn 4.23.0 under
+      devDependencies; no react 19.3.0, react-dom 19.3.0, eslint 9 or @types/node 20 left in the lock; `pnpm build`
+      exit 0 with Google Fonts reachable (D5) (d5a510d). CHECKPOINT: decisions D3 to D5
 - [ ] 3b Ports — files: web/package.json, api/src/Jobwright.Api/Properties/launchSettings.json,
       api/src/Jobwright.Api/Jobwright.Api.http — check: `git grep -n -E 'localhost:(5066|7131)|"next (dev|start)"' -- web api`
       finds nothing
@@ -110,6 +112,23 @@ Read from the ten api/**/packages.lock.json (net10.0 and net10.0/linux-x64), com
   (AGENTS.md). In this session it has no effect yet: `socket(AF_UNIX)` is still refused (Python: "Operation not
   permitted"; MSBuild: SocketException 13, 81 of 81 node starts), so `-m:1` stays. If it still fails after a session
   restart, the setting brings nothing and can be removed, which restores Q3's protection — confirm with Prashant Sharma
+
+- D3 (checkpoint 3) build scripts: allowBuilds unchanged, sharp: false and unrs-resolver: false; no other package asked
+  for one. Why: both ship prebuilt platform binaries as optional dependencies (@img/sharp-*, @unrs/resolver-binding-*),
+  so their install scripts are only fallbacks; allowing a script runs third-party code at install. If lint (which
+  loads unrs-resolver) or the build fails for want of it, that is a stop. Decided by Claude at Prashant Sharma's
+  instruction, 2026-11-11
+- D4 (checkpoint 3) `pnpm peers check`: eslint-plugin-import 2.32.0, eslint-plugin-jsx-a11y 6.10.2 and
+  eslint-plugin-react 7.37.5 (from eslint-config-next 16.4.5) declare eslint peers up to ^9, not 10.14.0. Kept, as
+  new-system.md pins eslint 10.14.0 ("Supported by eslint-config-next from 16.4.0"); step 8 sees lint red with a
+  react-hooks and a jsx-a11y violation, and a plugin that crashes or reports nothing is a stop (R-c, V4). Decided by
+  Claude at Prashant Sharma's instruction, 2026-11-11
+- D5 (checkpoint 3, for Prashant Sharma) the generated web/src/app/layout.tsx loads Geist and Geist Mono through
+  `next/font/google`, so `next build` downloads them from fonts.googleapis.com and fonts.gstatic.com. The sandbox
+  denies both ("Failed to fetch Geist from Google Fonts"); the build passed with those two hosts allowed for that one
+  command. Left as generated: no DO step names it, and the fonts are part 3's (requirements 9.3). Consequence for
+  slice-0-ci: the CI runner and the Dockerfile.web build stage need egress to both hosts, or the fonts are
+  self-hosted with `next/font/local` first. Confirm with Prashant Sharma (tech lead) before slice-0-ci
 
 ## Assumptions
 - The pinned toolchain is used through `PATH=~/.local/opt/node-v26.13.0/bin:~/.local/opt/dotnet-10.0.403:$PATH` and
