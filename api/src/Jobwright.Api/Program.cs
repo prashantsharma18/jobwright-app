@@ -18,6 +18,6 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 // Liveness (K2, draft contract /health/live): no dependency checks, so it answers 200 while the process runs.
-app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false });
+app.MapHealthChecks("/health/alive", new HealthCheckOptions { Predicate = _ => false });
 
 app.Run();
