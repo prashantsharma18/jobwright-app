@@ -6,7 +6,8 @@ File: `plans/NEW-jobwright/part-1/progress-slice-0-skeleton.md`, committed on it
 then with the slice; the compliance reviewer and the slice runner read it.
 
 ```text
-STATUS      doing
+STATUS      stopped: the sandbox refuses Unix sockets, so `dotnet test` and `dotnet format` (check.sh test and lint)
+            cannot run here; every other step is done and committed
 MODE        hands-on
 ```
 
@@ -33,20 +34,37 @@ MODE        hands-on
       ("Lockfile passes supply-chain policies"); importer `.` read: every entry at its pin, shadcn 4.23.0 under
       devDependencies; no react 19.3.0, react-dom 19.3.0, eslint 9 or @types/node 20 left in the lock; `pnpm build`
       exit 0 with Google Fonts reachable (D5) (d5a510d). CHECKPOINT: decisions D3 to D5
-- [ ] 3b Ports — files: web/package.json, api/src/Jobwright.Api/Properties/launchSettings.json,
-      api/src/Jobwright.Api/Jobwright.Api.http — check: `git grep -n -E 'localhost:(5066|7131)|"next (dev|start)"' -- web api`
-      finds nothing
-- [ ] 4 K2 test first — files: api/tests/Jobwright.Api.Tests/HealthLiveTests.cs, then api/src/Jobwright.Api/Program.cs
-      — check: red for the expected reason, then green
-- [ ] 5 web tests first — files: web/vitest.config.ts, web/src/lib/utils.test.ts, then web/src/app/page.tsx, layout.tsx,
-      web/public/*.svg (deleted) — check: each cn test seen red by breaking cn on purpose, then green
-- [ ] 6 U13 test first — files: api/tests/Jobwright.ArchitectureTests/ModuleBoundaryTests.cs — check: red with a
-      temporary Tenancy -> Identity reference carrying ArchUnitNET's own violation message (never committed), then green
-- [ ] 7 Placeholders removed — files: api/**/Class1.cs, api/tests/**/UnitTest1.cs (deleted) — check: build green
-- [ ] 8 scripts/check.sh and the web scripts — files: scripts/check.sh, web/package.json, web/.prettierrc.json,
-      web/.prettierignore — check: lint seen red once (react-hooks and jsx-a11y, temporary file, never committed);
-      `scripts/check.sh lint && scripts/check.sh test` green with web 2 and .NET 2; `scripts/check.sh build` green
-- [ ] 9 Boundary and diff review (aidlc-build step 9), report, index row
+- [x] 3b Ports — files: web/package.json, launchSettings.json, Jobwright.Api.http (CRLF kept) — check: the bundle's
+      `git grep` finds nothing (ac3037e)
+- [x] 4 K2 — HealthLiveTests red first: "Assert.Equal() Failure: Expected: OK, Actual: NotFound"; then
+      AddHealthChecks + MapHealthChecks("/health/live", Predicate = _ => false), the documented liveness pattern; green
+      (cab909f). The in-process host runs under the generated Microsoft.NET.Sdk (the docs' Web SDK not needed)
+- [x] 5 web — both cn tests red against a naive join put in utils.ts on purpose (received "px-2 py-1 px-4" and
+      "flex false    items-center"), utils.ts restored with no diff; green (dbf9a7e). Minimal page, title "Jobwright",
+      public/*.svg deleted (20c6a2b; see Deviations, slip 1). vitest.config.mts, not .ts (Deviations)
+- [x] 6 U13 — ModuleBoundaryTests green, then red with a temporary Tenancy -> Identity reference and type (never
+      committed), carrying ArchUnitNET's own message: "ArchUnitNET.xUnitV3.FailedArchRuleException : ... failed:
+      Jobwright.Modules.Tenancy.TemporaryViolation does depend on "Jobwright.Modules.Identity.Class1"" (no binding
+      exception, W4); lock files restored, locked restore passes (356ecb2). U13 ANSWERED: ArchUnitNET 0.13.5 runs on
+      xunit.v3 4.0.2 under Microsoft Testing Platform v2; the Q8 fallback is not needed
+- [x] 7 Placeholders removed (5 Class1.cs, 2 UnitTest1.cs; they landed in 8687793, see slip 2). With empty modules
+      ArchUnitNET refused the rule ("The rule requires positive evaluation, not just absence of violations") -> D6.
+      Re-proved red with empty modules: "TemporaryViolation does depend on Jobwright.Modules.Identity.TemporaryIdentity";
+      and the C11 guard red without the Tenancy.Contracts reference: "Not found: Jobwright.Modules.Tenancy.Contracts"
+- [ ] 8 scripts/check.sh and the web scripts (25b34e1); formatting pass D7 (2b73ff0). Lint seen red once with a
+      temporary file (never committed), `scripts/check.sh lint` exit 1: "8:5 error React Hook "useState" is called
+      conditionally ... react-hooks/rules-of-hooks" and "10:10 warning img elements must have an alt prop ...
+      jsx-a11y/alt-text" (D4 resolved: both plugins run under ESLint 10.14.0). Verified here: pnpm -C web lint,
+      format:check, typecheck, test exit 0 (web: 1 file, 2 passed); `dotnet build api/Jobwright.slnx -c Release -m:1`
+      0 warnings, 0 errors; both .NET test apps run directly: Api.Tests Total 1, ArchitectureTests Total 1, Failed 0,
+      Skipped 0 (counts: web 2, .NET 2, as DONE WHEN expects). `dotnet test api/Jobwright.slnx` parses the positional
+      solution like `--solution`. NOT RUN HERE: `scripts/check.sh test` and `lint` (dotnet test and dotnet format die on
+      "SocketException (13): Permission denied") and `scripts/check.sh build` (next build needs fonts.googleapis.com,
+      D5; dotnet build needs parallel nodes). Open: the full run
+- [ ] 9 Boundary check done early: `git diff --name-only b94004d HEAD` has nothing outside MAY CHANGE and nothing in
+      MUST NOT; DONE WHEN greps (placeholders with ':!plans', net8.0/TestingPlatformDotnetTestSupport, ports, 3000) find
+      nothing; test projects reference only xunit.v3.mtp-v2 of xunit's packages; no suppression or skip; check.sh exports
+      the three opt-outs. Self-review done (below). Open: repeat after the full run, then report and index row
 
 ## Checkpoint 2: lock files (for Prashant Sharma)
 Read from the ten api/**/packages.lock.json (net10.0 and net10.0/linux-x64), commit 5c3af0d.
@@ -74,7 +92,26 @@ Read from the ten api/**/packages.lock.json (net10.0 and net10.0/linux-x64), com
   which removes all six packages; Q8 pre-approved it only for "ArchUnitNET does not load or run", so choosing it here
   is a new decision
 
+## Self-review (step 9, reviewing-code)
+- low, correctness: mutation `Predicate = _ => true` stays green (Total 1, Failed 0): no health check is registered
+  yet, so "no dependency checks" has no test. Dismissed for this slice: K2's criterion is the 200; the first check
+  arrives with part 3's /health/ready, whose slice should add `HealthLive_runs_no_dependency_check` (a failing check
+  registered, /health/live still 200)
+- low, security: `pnpm audit` on the committed lock: minimatch >=7 <11.0.1 (moderate, GHSA-g3hv-75wg-m249, via ESLint
+  and @typescript-eslint, lint only; fixed in 11.0.1 but only through an override, a dependency change for the owner)
+  and deepmerge <=4.3.1 (low, GHSA-gcqx-w48m-w2h4, via the shadcn CLI, no fix). Development tooling only, nothing the
+  image ships, no untrusted input reaches them. Deferred, review at slice-0-ci (its trivy fs gate); owner Prashant Sharma
+- question, architecture: the template's `app.UseHttpsRedirection()` stays in Program.cs; the API is internal-only
+  (ADR 0001) and probes hit /health/live over http. If ASPNETCORE_HTTPS_PORT is ever set, probes get 307. For
+  slice-0-ci or part 3 (Dockerfile.api, the chart); not changed here (no DO step names it)
+- low, correctness: ModuleBoundaryTests indexes `forbidden[0]`; with no forbidden assembly it would throw. The hosts and
+  the other module are always forbidden, so it cannot be empty today; left as is
+- Reviewed and fine: no secret, no personal data, no new log line; telemetry opt-outs; ports 127.0.0.1 only; the
+  restore's NuGet audit reported nothing; csproj and props changes are versions and references only
+
 ## Skills loaded
+- aidlc:reviewing-code — plugin version 5.0.0
+- aidlc:debugging-failures — plugin version 5.0.0
 - aidlc:writing-tests — plugin version 5.0.0
 - aidlc:checking-official-docs — plugin version 5.0.0
 - aidlc:securing-code — plugin version 5.0.0
@@ -93,6 +130,14 @@ Read from the ten api/**/packages.lock.json (net10.0 and net10.0/linux-x64), com
 - Sandbox, environment only: `EnableSourceControlManagerQueries=false` in the environment of local builds. The
   sandbox mounts a character device (/dev/null) at ./.gitmodules, and the SDK's Microsoft.Build.Tasks.Git fails
   reading it ("Access to the path '.../.gitmodules' is denied") in every project. A real checkout has no .gitmodules
+- Slip 1: `git rm` staged the five public/*.svg deletions, and the next commit (dbf9a7e, the cn tests) took them, not
+  the page commit (20c6a2b). Slip 2, same cause: step 7's seven placeholder deletions landed in the D6 commit 8687793,
+  whose message wrongly says "next commit". Not rewritten (a person rewrites history); every commit builds. Prashant
+  Sharma may split or reword them before pushing. Since then every commit checks `git diff --cached` first
+- vitest.config.mts in place of the bundle's vitest.config.ts: Vite warned "ESM syntax in a file loaded as CommonJS";
+  the other ways out were a suppression variable or "type": "module" for the whole package
+- `dotnet test` and `dotnet format` cannot run in this sandbox (their SDK-to-host pipe is a Unix socket too); the .NET
+  tests ran as the Testing Platform executables they are (bin/<config>/net10.0/<Project>), same tests and runner
 - aidlc:debugging-failures loaded for the restore failure (aidlc-build names it for step 8's failures; used at step 2)
 
 ## Amended assertions seen red
@@ -130,13 +175,23 @@ Read from the ten api/**/packages.lock.json (net10.0 and net10.0/linux-x64), com
   slice-0-ci: the CI runner and the Dockerfile.web build stage need egress to both hosts, or the fonts are
   self-hosted with `next/font/local` first. Confirm with Prashant Sharma (tech lead) before slice-0-ci
 
+- D6 (step 7) ModuleBoundaryTests runs its rule `WithoutRequiringPositiveResults()`: with the placeholders gone, the
+  module assemblies hold no types, and ArchUnitNET refuses a rule that matches none. The test's own guard against a
+  vacuous pass is its first assertion (every module loaded, C11), which plan V7 accepted as the guard until part 3
+  adds types; both guards proved red with empty modules (step 7). It relaxes a library default, so it is flagged:
+  confirm with Prashant Sharma in the pull request. Decided by Claude at his instruction, 2026-11-11
+- D7 (step 8) Prettier's defaults (S5 sets none) flag the 7 shadcn components, globals.css and utils.ts (shadcn writes
+  without semicolons). Formatted by `prettier --write` in a commit of its own (2b73ff0) rather than excluding
+  src/components/ui from the gate. This met STOP IF "a generated file would need editing outside what a DO step
+  names", decided under his delegation. After each later `shadcn add`, run Prettier the same way. Decided by Claude
+  at Prashant Sharma's instruction, 2026-11-11
+
 ## Assumptions
 - The pinned toolchain is used through `PATH=~/.local/opt/node-v26.13.0/bin:~/.local/opt/dotnet-10.0.403:$PATH` and
   `DOTNET_ROOT=~/.local/opt/dotnet-10.0.403` on every command, as in slice-0-scaffold — confirmed by Prashant Sharma,
   2026-11-11 (restatement)
-- COMMANDS writes `dotnet test api/Jobwright.slnx`; on SDK 10 with global.json's Testing Platform runner the solution
-  may need `--solution`. Checked against the official docs at step 8; a disagreement with COMMANDS is a stop for the
-  design approver — flagged at the restatement
+- COMMANDS' `dotnet test api/Jobwright.slnx` — resolved: on SDK 10.0.403 the positional path evaluates the solution
+  exactly as `--solution` does (step 8); check.sh keeps COMMANDS as written
 - DONE WHEN's `git grep -n -i -E "weatherforecast|Class1|UnitTest1"` always matches the plan documents; it is run with
   `-- ':!plans'`, as `plans/**` is exempt — confirmed by Prashant Sharma, 2026-11-11 (restatement)
 - web/src/app/layout.tsx's "Create Next App" metadata is a generator placeholder; step 5 sets the title to "Jobwright"
