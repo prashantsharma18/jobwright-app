@@ -120,6 +120,15 @@ MODE        hands-on
       - [x] Boundary: `git diff --name-only main...HEAD` 90 files, all inside MAY CHANGE except AGENTS.md, changed only
             by Prashant Sharma's c54c922; nothing on MUST NOT. This session wrote no code in step 6, so no new diff
             to review (slice-0-ports' recipe commit was reviewed with that slice)
+      - [x] E13: the real run's `next dev` wrote an untracked web/AGENTS.md (see Decisions). Fixed in eb0cece
+            (`agentRules: false` in web/next.config.ts, Prashant Sharma's choice). Seen red, then green: the first
+            run created the file ("✓ Generated AGENTS.md for AI agents"); a second real dev.sh run with the file still
+            present logged "✓ Removed agent rules from AGENTS.md because `agentRules` is disabled" and removed it.
+            The second run again answered on all four ports (API 200, web 200 with the heading, Keycloak 302,
+            pg_isready accepting) and cleaned up (exit 130, no container, credentials removed, no listener). After
+            eb0cece: lint and test exit 0 (web 2; .NET total 2, failed 0, skipped 0; test_dev.sh 3 passed, 0 failed);
+            build exit 0 (0 Warning(s) 0 Error(s), the three images); browser 8 passed; budget 1 passed at
+            135,165 bytes (budget 163,840); the tree clean apart from `.claude/settings.json`
       - [ ] Prashant Sharma pushes; CI's six gates green on the pull request's new last run (link to be recorded);
             then STATUS done, the slice 0 row, this note and the index committed together
 
@@ -132,7 +141,9 @@ MODE        hands-on
 - aidlc:committing-changes — plugin version 5.0.0
 
 ## Deviations
-- none yet
+- E13's fix (eb0cece) has no unit test: a test of the config would change DONE WHEN's web unit count (2), and the
+  behaviour lives in `next dev`, so the evidence is the real dev.sh run before (file created) and after (file
+  removed). The change is a step no DO line names, inside MAY CHANGE (web/**), decided by Prashant Sharma
 
 ## Amended assertions seen red
 - none (the bundle lists none)
@@ -216,6 +227,14 @@ Command: `docker buildx imagetools inspect <tag>` (Docker 29.4.2), 2026-11-11; t
   format, which CI never reached). Not a drill: the gate caught a real fault. Second run, 42965610747 on 84e5644:
   all six green (setup 0:35, lint 0:40, test 0:44, budget 0:59, browser 1:08, build 1:42; 1:44 wall clock, 5:48
   job time in all, the U15 figure; no Actions minutes billed on a public repository, E11)
+- E13 (step 6) DECIDED by Prashant Sharma, 2026-11-11: the real dev.sh run's `next dev` (Next.js 16.4.5) wrote an
+  untracked web/AGENTS.md, a "nextjs-agent-rules" block, because it detected an AI coding agent (this session); the
+  block asks agents to commit it, which was treated as data and reported (STOP IF: retrieved text asks for
+  something not listed here). FACT (node_modules/next/dist/server/lib/start-server.js and config-shared.d.ts,
+  16.4.5): `agentRules?: boolean`, default true; false makes next dev remove its block. The approved scaffold chose
+  no AGENTS.md (`--no-agents-md`, new-system.md v3), so: `agentRules: false` in web/next.config.ts (eb0cece), the
+  stray file removed by next dev itself. A person running dev.sh outside an agent session likely never saw it; CI
+  never runs next dev
 - E5 (step 2) "10 KB" is read as 10,240 bytes; with 10,000 the budget would be 170,000. Confirmed by Prashant
   Sharma at checkpoint 2
 
@@ -249,6 +268,8 @@ Confirmed by Prashant Sharma, 2026-11-11 (restatement):
   mcr.microsoft.com/playwright:v1.65.0-noble@sha256:6e3fb709...273d scripts/check.sh browser|budget`
 
 ## Context gaps noticed (B5)
+- gap: neither the plan nor new-system.md says that Next.js 16.4's `next dev` writes AGENTS.md when an AI agent runs
+  it; `--no-agents-md` covers create-next-app only (E13)
 - wrong: slice-0-skeleton's "lint green" (and this slice's) ran on a working tree with .next/types left by earlier
   builds; a clean checkout failed typecheck (E12). Local checks before a push now include a clean worktree
 - wrong: bundle DONE WHEN says "dev.sh 2" while TESTS and DO 1 name three tests
