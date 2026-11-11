@@ -13,7 +13,6 @@ WORKDIR /src
 COPY global.json dotnet-tools.json ./
 COPY api/Directory.Build.props api/Directory.Packages.props api/
 COPY api/src/ api/src/
-COPY api/drill-missing.props api/
 RUN dotnet restore api/src/Jobwright.Worker/Jobwright.Worker.csproj --locked-mode && \
     dotnet restore api/src/Jobwright.Admin/Jobwright.Admin.csproj --locked-mode
 RUN dotnet publish api/src/Jobwright.Worker/Jobwright.Worker.csproj -c Release --no-restore -o /app/worker && \

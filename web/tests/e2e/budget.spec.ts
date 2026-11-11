@@ -4,7 +4,7 @@ import { expect, test } from "@playwright/test";
 // Measured on the skeleton home page, 2026-11-11 (slice-0-ci): 135,165, 135,165 and 135,165 bytes in 5 script
 // responses; 135,165 × 1.2 = 162,198, rounded up to 16 × 10,240. Part 3 moves this test to the signed-in Overview,
 // which must stay within it (plan R-e, C6).
-const SCRIPT_BUDGET_BYTES = 1;
+const SCRIPT_BUDGET_BYTES = 163_840;
 
 test("AC26 first load stays within the script budget", async ({ page }) => {
   // Encoded (transferred) body size of every script response, from navigation until the network is idle (plan C6).
