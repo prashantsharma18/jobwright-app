@@ -8,6 +8,8 @@ describe("cn", () => {
   });
 
   it("cn drops falsy values", () => {
-    expect(cn("flex", false, null, undefined, "", "items-center")).toBe("flex items-center");
+    expect(cn("flex", false, null, undefined, "", "items-center")).toBe(
+      "flex items-center",
+    );
   });
 });
