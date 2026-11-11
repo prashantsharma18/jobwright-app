@@ -1,6 +1,5 @@
-@Jobwright.Api_HostAddress = http://localhost:5066
+@Jobwright.Api_HostAddress = http://127.0.0.1:55080
 
-GET {{Jobwright.Api_HostAddress}}/weatherforecast/
-Accept: application/json
+GET {{Jobwright.Api_HostAddress}}/health/live
 
 ###
