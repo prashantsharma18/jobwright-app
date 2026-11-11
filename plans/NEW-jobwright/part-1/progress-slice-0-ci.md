@@ -110,7 +110,18 @@ Command: `docker buildx imagetools inspect <tag>` (Docker 29.4.2), 2026-11-11; t
   dev.sh's real run and step 3's image checks with a published port fail on this machine. The ports are K4's and
   requirements 9.5's, so nothing in the repository changes. The owner frees them (an elevated
   `net stop winnat` then `net start winnat` usually releases dynamic exclusions; a reboot may move them back), and the
-  real run is repeated at step 6. Until then dev.sh is proved by test_dev.sh only
+  real run is repeated at step 6. Until then dev.sh is proved by test_dev.sh only.
+  DECIDED by Prashant Sharma, 2026-11-11: move the dev ports below Windows' dynamic range (49152-65535; `netsh
+  interface ipv4 show dynamicport protocol=tcp`), so neither WinNAT nor the lab is touched. Not freeing them: no
+  process listens on them (netstat), they are reservations of hns or winnat (INFERENCE: netsh names no owner), and
+  `net stop winnat` would briefly cut the lab's published ports and may not survive a reboot. Candidates checked
+  free on WSL (ss) and Windows (netstat), outside every excluded range, absent from jobwright-gitops and from the
+  lab's list: PostgreSQL 15432, Keycloak 18080, API 15080, web 15300 (new numbers to be confirmed in the plan).
+  NOT APPLIED IN THIS BUNDLE: the four numbers are plan K4's, this bundle's MUST NOT, new-system.md COMMANDS (line
+  69) and AGENTS.md (line 46). Route: aidlc-plan drafts plan v4 (K4) and bundle slice-0-ci v4 (MUST NOT's port list,
+  a DO step moving dev.sh, test_dev.sh, launchSettings.json, Jobwright.Api.http, web/package.json and
+  web/playwright.config.ts); the workspace root updates new-system.md; Prashant Sharma edits AGENTS.md; he approves
+  the plan and bundle. The slice cannot close (DONE WHEN: dev.sh green locally) until that step lands
 - E2 (step 2) Local browser runs set PNPM_CONFIG_VERIFY_DEPS_BEFORE_RUN=false in the container only. Without it,
   pnpm's default `verifyDepsBeforeRun: install` (FACT, pnpm.io/settings/build) reinstalled all 596 packages into a
   new store at the repository root (`.pnpm-store/`, 622 MB; the container's mounts are separate filesystems). Both
@@ -133,6 +144,8 @@ Command: `docker buildx imagetools inspect <tag>` (Docker 29.4.2), 2026-11-11; t
   checkout keeps no credentials (`persist-credentials: false`); setup-node's pnpm cache and setup-dotnet's NuGet
   cache are keyed by web/pnpm-lock.yaml and api/**/packages.lock.json; each job has a timeout (10 to 30 minutes);
   setup-dotnet's LTS pre-pass is left at its default
+- E9 Root .gitignore gains `.pnpm-store/` (E2) and `.env*` (only web/ had it), asked for by Prashant Sharma
+  (e1775f1); `git check-ignore -v --no-index` matches .pnpm-store/x, .env, .env.local and api/.env.development
 - E5 (step 2) "10 KB" is read as 10,240 bytes; with 10,000 the budget would be 170,000. Confirmed by Prashant
   Sharma at checkpoint 2
 
