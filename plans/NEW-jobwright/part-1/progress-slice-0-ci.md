@@ -154,6 +154,14 @@ Command: `docker buildx imagetools inspect <tag>` (Docker 29.4.2), 2026-11-11; t
   mismatch fails all six at the install and hides the other five reasons. Drill 1 breaks setup only (a lock
   mismatch); drill 2 breaks lint, test, build, browser and budget, each for its own reason; then one revert.
   Confirmed by Prashant Sharma with checkpoint 4
+- E11 (step 5) DECIDED by Prashant Sharma, 2026-11-11: github.com/prashantsharma18/jobwright-app is PUBLIC. Before
+  the push: no token, key or password in any commit of main or the branch (`git log --all -p` scan); the only
+  addresses are his noreply, Anthropic's noreply (co-author lines) and one in shadcn's generated code; this note
+  names his home path, the lab's container names and the Windows port ranges (kept as the record). Consequences
+  for the workspace root to record (ADR 0011, spec KL1, plan C8): standard runners cost no Actions minutes on a
+  public repository, so U15 informs speed, not budget; GitHub Free offers branch protection on public repositories,
+  so KL1 ("nothing is enforced") can be revisited; the code, plans and every CI log, the drill's red runs included,
+  are world-readable. ci.yml needs no change: pull_request runs from forks get a read-only token and no secret
 - E5 (step 2) "10 KB" is read as 10,240 bytes; with 10,000 the budget would be 170,000. Confirmed by Prashant
   Sharma at checkpoint 2
 
