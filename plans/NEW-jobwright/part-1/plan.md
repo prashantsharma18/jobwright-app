@@ -329,14 +329,19 @@ OPEN       Q1 DECIDED (by Claude at Prashant Sharma's instruction, 2026-11-10): 
               Microsoft.Win32.Registry 5.0.0, System.Security.AccessControl 6.0.1 and Microsoft.Bcl.AsyncInterfaces
               6.0.0, and ArchUnitNET brings System.Net.Http 4.3.4 and System.Text.RegularExpressions 4.3.1; the
               bundle names each, and Q12's v5 lists them for the design approver
-           Q12 (v3) BLOCKS slice-0-skeleton. Prashant Sharma (design approver), 2026-11-11, after the v3 challenge (W1,
+           Q12 CLOSED (2026-11-11): new-system.md v5 APPROVED by Prashant Sharma (design approver), root commit
+              fb508de, naming xunit.v3.mtp-v2 4.0.2; slice-0-skeleton is unblocked. Erratum, same day (from that
+              commit): the template's option is `--framework` (dotnetcli.host.json maps the symbol Framework to
+              longName "framework"; SDK 10.0.403 rejects `--Framework`), corrected below and in W2; no step or bundle
+              changes. The question as v3 put it:
+              (v3) BLOCKS slice-0-skeleton. Prashant Sharma (design approver), 2026-11-11, after the v3 challenge (W1,
               W2): the test projects reference xunit.v3.mtp-v2 4.0.2, as the template generates them, not new-system.md
               v4's xunit.v3. Why: xunit.v3 is an alias, 3.2.2 for mtp-v1 and 4.0.2 for mtp-v2, so a one-line bump
               could change the platform's major version unseen; the name xunit.v3.mtp-v2 says it; and every
               `dotnet new xunit3` writes it, so no project needs the hand edit -> the workspace root drafts
               new-system.md v5: DEPENDENCIES and Pinned versions name xunit.v3.mtp-v2 4.0.2 in place of xunit.v3
               (xunit.v3.templates 4.0.2 stays); SCAFFOLD's note says slice-0-skeleton changes the test projects to
-              net10.0 only, and that later test projects are generated with `dotnet new xunit3 --Framework net10.0`;
+              net10.0 only, and that later test projects are generated with `dotnet new xunit3 --framework net10.0`;
               the v4 review lists' two test-project rows and the "xunit.v3.mtp-v2 in place of xunit.v3"
               alternative are corrected (mtp-v2 is in the graph under either choice); the transitive packages of
               Q11 are listed for review; and Q13's opt-outs are recorded if he wants them in the design. Prashant
@@ -472,7 +477,7 @@ were checked again by this session (Facts checked, v3).
 | ID | Objection | Severity | Answer |
 |---|---|---|---|
 | W1 | xunit.v3 is an alias whose platform package changes with its major version (3.2.2: mtp-v1; 4.0.x: mtp-v2), so a one-line bump of the central pin could switch the platform's major version, visible only as a transitive name in the lock files | serious | FACT, confirmed. Change: Prashant Sharma chose xunit.v3.mtp-v2 again (Q12), so the platform's version is in the name a reviewer reads; new-system.md v5 records it and blocks slice-0-skeleton |
-| W2 | The vendor's xunit3 template never writes xunit.v3, so every later test project needs a hand edit that nothing enforces; "not used" in v4 contradicts every lock file | serious | FACT, confirmed. Change: Q12 (the template's own package); v5 corrects the v4 rows; later test projects are generated with `--Framework net10.0` |
+| W2 | The vendor's xunit3 template never writes xunit.v3, so every later test project needs a hand edit that nothing enforces; "not used" in v4 contradicts every lock file | serious | FACT, confirmed. Change: Q12 (the template's own package); v5 corrects the v4 rows; later test projects are generated with `--framework net10.0` |
 | W3 | Accepting "three xunit names" lets more in: the platform's telemetry extension with Application Insights, registry and access-control packages, and ArchUnitNET's System packages; the telemetry sends usage data to Microsoft by default, while the requirements route telemetry only to the lab | serious | FACT, confirmed (assets file; vendor pages). Change: Q11 and the slice-0-skeleton bundle name every one of them for the CHECKPOINT and the pull request; Q13 (decided by Prashant Sharma) switches tool telemetry off in check.sh, dev.sh, ci.yml and the Dockerfiles. Applies under either xunit choice |
 | W4 | Step 6's "show it red" passes on a binding crash (MissingMethodException, TypeLoadException) as well as on a real violation, so U13 could be "proved" by a crash | serious | Change: slice-0-skeleton step 6 counts the red only if the output carries ArchUnitNET's own violation message naming the Tenancy -> Identity dependency |
 | W5 | Retargeting by hand keeps `TestingPlatformDotnetTestSupport`, which the template's own net10.0 output leaves out; V8's "no effect" is untested | minor | FACT, confirmed (template `#if (Framework != "net10.0" ...)`). Change (Prashant Sharma, 2026-11-11): step 2 removes the property with the retarget, reversing V8's accepted risk; tests not discovered without it is a stop |
