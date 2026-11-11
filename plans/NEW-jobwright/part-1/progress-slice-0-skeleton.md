@@ -71,6 +71,7 @@ Read from the ten api/**/packages.lock.json (net10.0 and net10.0/linux-x64), com
   which removes all six packages; Q8 pre-approved it only for "ArchUnitNET does not load or run", so choosing it here
   is a new decision
 
+## Skills loaded
 - aidlc:writing-tests — plugin version 5.0.0
 - aidlc:checking-official-docs — plugin version 5.0.0
 - aidlc:securing-code — plugin version 5.0.0
@@ -80,9 +81,12 @@ Read from the ten api/**/packages.lock.json (net10.0 and net10.0/linux-x64), com
 - Sandbox, environment only, nothing in the repository: every local `dotnet` build or restore runs with `-m:1`. With
   MSBuild's default parallel nodes, the restore of ArchitectureTests (and so the solution) fails with "Build FAILED,
   0 Error(s)" in `_GenerateRestoreProjectPathWalk` of Jobwright.Api; `-m:1` passes, `-nr:false` or
-  MSBUILDDISABLENODEREUSE=1 alone do not. Running outside the sandbox to confirm the cause was refused by the
-  permission classifier, so the exact cause (worker nodes not starting or not connecting in the sandbox) is UNKNOWN;
-  CI will show whether the default works there
+  MSBUILDDISABLENODEREUSE=1 alone do not. Running outside the sandbox was refused by the permission classifier.
+  Cause, FACT (MSBUILDDEBUGCOMM=1 trace, 90 of 90 node starts): each worker node fails creating its named pipe,
+  `System.Net.Sockets.SocketException (13): Permission denied at Socket..ctor` from `NamedPipeServerStream` in
+  `NodeEndpointOutOfProcBase.InternalConstruct`; on Linux the pipe is a Unix domain socket at /tmp/MSBuild<PID>, and
+  the sandbox refuses the socket() call itself. Prashant Sharma, 2026-11-11: in favour of letting MSBuild's nodes
+  through the sandbox (he sets it; agents never edit .claude/**); until then `-m:1` stays
 - Sandbox, environment only: `EnableSourceControlManagerQueries=false` in the environment of local builds. The
   sandbox mounts a character device (/dev/null) at ./.gitmodules, and the SDK's Microsoft.Build.Tasks.Git fails
   reading it ("Access to the path '.../.gitmodules' is denied") in every project. A real checkout has no .gitmodules
