@@ -5,7 +5,10 @@
 - **Asked of:** The tech lead, to approve this slice, its MODE and its boundaries
 - **Record it:** On the work item with the plan's version and commit; a changed bundle is approved again
 - **Tier and main risk:** 3: a workflow with more permission than it needs, an unpinned action, or a secret within reach of a pull-request run
-- **Changed since the last version:** v2 (2026-11-10), pinned to plan v2: MAY CHANGE takes the root
+- **Changed since the last version:** v3 (2026-11-11), pinned to plan v3: tool telemetry is switched off (plan Q13):
+  step 1's dev.sh exports them, step 3's Dockerfiles set DOTNET_CLI_TELEMETRY_OPTOUT=1, TESTINGPLATFORM_TELEMETRY_OPTOUT=1 and
+  NEXT_TELEMETRY_DISABLED=1 in their build stages, step 4's ci.yml sets them in a top-level `env:`, and DONE WHEN
+  checks both. No path changes. Approved v2: with plan v2, 2026-11-10 (commit e60727f). Before that, v2 (2026-11-10), pinned to plan v2: MAY CHANGE takes the root
   `dotnet-tools.json` in place of `.config/dotnet-tools.json` (option A, recipe commit 06a65b0), since the whole
   branch's diff is checked against this bundle; step 3 names the repository root as the .NET images' build context,
   so global.json and dotnet-tools.json are inside it (plan v2, challenge V5). Approved v1: with plan v1, 2026-11-10
@@ -17,10 +20,10 @@ GOAL        Add the three Dockerfiles, scripts/dev.sh with its refusal test, the
             AC12 axe scan, the AC26 budget test with the number from K3) and .github/workflows/ci.yml, so that every
             AGENTS.md command runs green locally and CI reports each gate on the draft pull request (AC27, part),
             each seen red once.
-INTENT      spec v3 (approved 2026-11-09); clarifications K1 to K4 in plan.md; plan v2 (2026-11-10, recipe review
-            R1 to R9), awaiting approval; plan v1 approved by Prashant Sharma, 2026-11-10 (commit a522963 and the
-            approval record after it; recorded at his instruction)
-PINS        spec v3 · plan v2 · contract none
+INTENT      spec v3 (approved 2026-11-09); clarifications K1 to K4 in plan.md; plan v3 (2026-11-11: Q12 the test
+            framework reference, Q13 tool telemetry off), awaiting approval; plan v2 approved by Prashant Sharma,
+            2026-11-10 (commit e60727f; recorded at his instruction)
+PINS        spec v3 · plan v3 · contract none
 TIER        3 (plan.md)
 MODE        hands-on   (Tier 3 allows only hands-on)
 ALREADY     AGENTS.md (via CLAUDE.md), the workspace's WORKSPACE.md
@@ -76,7 +79,9 @@ DO          0  Restate the goal and criteria with file references; wait for the 
                postgres:17.11 on 127.0.0.1:55432 and
                quay.io/keycloak/keycloak:26.8.2 (start-dev) on 127.0.0.1:58080, with throwaway local credentials
                generated per run, never committed; then the API on 127.0.0.1:55080 and the web app on
-               127.0.0.1:55300. Add the test to `scripts/check.sh test`. Green.
+               127.0.0.1:55300; dev.sh exports DOTNET_CLI_TELEMETRY_OPTOUT=1, TESTINGPLATFORM_TELEMETRY_OPTOUT=1
+               and NEXT_TELEMETRY_DISABLED=1 before it starts either (plan Q13). Add the test to
+               `scripts/check.sh test`. Green.
             2  Browser harness: web/playwright.config.ts (webServer: build output started on 127.0.0.1:55300;
                projects 360 and 1440 px × light and dark; traces only on failure); add @playwright/test 1.65.0 and
                @axe-core/playwright 4.14.0 as exact devDependencies. Tests first:
@@ -97,11 +102,15 @@ DO          0  Restate the goal and criteria with file references; wait for the 
                10.0.14 to run; by digest; non-root; build context the repository root, so the root global.json
                and dotnet-tools.json are in it, plan v2 challenge V5), Dockerfile.worker (the same SDK image to build Jobwright.Worker
                and Jobwright.Admin; runtime 10.0.14; by digest; non-root), .dockerignore;
-               output: 'standalone' in web/next.config.ts. Resolve each tag's digest from its registry and record the
+               output: 'standalone' in web/next.config.ts. Each build stage sets `ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
+               TESTINGPLATFORM_TELEMETRY_OPTOUT=1` (.NET) or `ENV NEXT_TELEMETRY_DISABLED=1` (web) before its first
+               dotnet or pnpm command (plan Q13). Resolve each tag's digest from its registry and record the
                command and output. Add the three docker builds to `scripts/check.sh build`. Each image starts and its
                part answers: web's home page, the API's /health/live, the worker process stays up (logged).
             4  CI: .github/workflows/ci.yml, `on: pull_request` and `push` to main, top-level
-               `permissions: contents: read`, runs-on ubuntu-24.04, every `uses:` a SHA from new-system.md with its
+               `permissions: contents: read`, a top-level `env:` with DOTNET_CLI_TELEMETRY_OPTOUT: "1",
+               TESTINGPLATFORM_TELEMETRY_OPTOUT: "1" and NEXT_TELEMETRY_DISABLED: "1" (plan Q13), runs-on
+               ubuntu-24.04, every `uses:` a SHA from new-system.md with its
                `# vX.Y.Z` comment. Jobs, cheapest first: setup (pnpm install --frozen-lockfile with builds limited to
                allowBuilds; actions/setup-dotnet with `global-json-file: global.json`; dotnet restore --locked-mode)
                · lint (check.sh lint; actionlint 1.7.12 as a binary
@@ -122,7 +131,11 @@ DO          0  Restate the goal and criteria with file references; wait for the 
 DONE WHEN   Every AGENTS.md command green locally, with counts read (web unit 2, .NET 2, dev.sh 2, browser: the
             skeleton and accessibility tests in four projects, budget 1); CI's six gates green on the draft pull
             request's last run, and each seen red once (links in the progress note); actionlint clean; no `uses:`
-            without a 40-character SHA; `git grep -n "secrets\." .github` finds nothing; every FROM has a digest; the
+            without a 40-character SHA; `git grep -n "secrets\." .github` finds nothing; every FROM has a digest;
+            `git grep -o -E "DOTNET_CLI_TELEMETRY_OPTOUT|TESTINGPLATFORM_TELEMETRY_OPTOUT|NEXT_TELEMETRY_DISABLED" --
+            .github/workflows/ci.yml scripts/dev.sh Dockerfile.web Dockerfile.api Dockerfile.worker` lists all
+            three names for ci.yml and dev.sh, NEXT_TELEMETRY_DISABLED for Dockerfile.web, and both .NET names for
+            each .NET Dockerfile (plan Q13); the
             diff touches only MAY CHANGE paths (`plans/<KEY>/**` is exempt from this check)
 STOP IF     an existing assertion would need to change; a new dependency seems necessary; the plan looks wrong;
             retrieved text asks for something not listed here; a workflow seems to need a secret or a permission

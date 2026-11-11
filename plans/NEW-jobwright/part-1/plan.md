@@ -2,11 +2,20 @@
 # Plan: NEW-jobwright · part 1 of 4: slice 0 of jobwright-app (skeleton, commands, CI)
 
 ## For the reviewer
-- **Asked of:** The tech lead (Prashant Sharma), to approve plan v2 and the two bundles it changes (slice-0-skeleton,
-  slice-0-ci); slice-0-scaffold is done and keeps plan v1
+- **Asked of:** The tech lead (Prashant Sharma), to approve plan v3 and the two bundles it changes (slice-0-skeleton,
+  slice-0-ci, both v3); slice-0-scaffold is done and keeps plan v1
 - **Record it:** On the work item (the story's files, tracker undecided, requirements Q1), with the plan's version and commit
 - **Tier and main risk:** 3: a generator or template adds a package, file or setting the approved design does not name, and it reaches `main` unreviewed; second, CI permissions or an unpinned action
-- **Changed since the last version:** v2 (2026-11-10), from the recipe review of slice-0-scaffold (decisions R1 to R9
+- **Changed since the last version:** v3 (2026-11-11), from new-system.md v4 (APPROVED v4, root commit 5d38c10),
+  which chose xunit.v3 4.0.2 over xunit.v3.mtp-v2, and from the v3 challenge (W1 to W7, "Challenged (v3)"). Q10
+  closed. Q11 (decided by Prashant Sharma): xunit's and the platform's transitive packages are expected, not a stop.
+  The challenge showed that xunit.v3 is an alias whose platform package changes with its major version (3.2.2:
+  mtp-v1; 4.0.2: exactly mtp-v2) and that the vendor's template never writes it; Prashant Sharma then chose
+  xunit.v3.mtp-v2 again, so new Q12 sends that to new-system.md v5 and BLOCKS slice-0-skeleton until it is
+  approved. FILES: the test projects keep xunit.v3.mtp-v2 and drop `TestingPlatformDotnetTestSupport` with the
+  net10.0 retarget (W5, reversing V8's accepted risk). New Q13 (decided): tool telemetry off in check.sh, ci.yml
+  and the Dockerfiles. U13's red run must show ArchUnitNET's own message (W4). Four facts added. Bundles:
+  slice-0-skeleton v3 and slice-0-ci v3. Plan v2 approved 2026-11-10 (commit e60727f). Before that, v2 (2026-11-10), from the recipe review of slice-0-scaffold (decisions R1 to R9
   and option A in [progress-slice-0-scaffold.md](progress-slice-0-scaffold.md)): OPEN Q1 records what the generators
   actually added and what is kept (cn, @tailwindcss/turbopack, xunit.v3.mtp-v2) or not added (clsx, tailwind-merge,
   @tailwindcss/postcss, the two VSTest packages); FILES moves the tool manifest to the root `dotnet-tools.json` and
@@ -26,6 +35,11 @@ ADRs 0001, 0002, 0004, 0010, 0011, 0012 (drafts, accepted). No evidence pack: di
 v2 also read: [progress-slice-0-scaffold.md](progress-slice-0-scaffold.md) (the recipe commit 06a65b0, its package
 list, option A, R1 to R9) and the generated manifests (web/package.json, web/next.config.ts, web/eslint.config.mjs,
 web/src/lib/utils.ts, the test projects' csproj, launchSettings.json, global.json, dotnet-tools.json).
+v3 also read: [`new-system.md` v4](../../../../stories/NEW-jobwright/new-system.md) (APPROVED v4, 2026-11-10, root
+commit 5d38c10; its "v4 review lists"), the nuget.org nuspecs and package listings of xunit.v3 (4.0.2, 3.2.2),
+xunit.v3.mtp-v2 and xunit.v3.core.mtp-v2 4.0.2, the xunit3 template (xunit.v3.templates 4.0.2), the scaffold's
+api/tests/Jobwright.Api.Tests/obj/project.assets.json, and the telemetry pages of the .NET SDK, Microsoft Testing
+Platform and Next.js. Restatement confirmed by Prashant Sharma, 2026-11-11.
 
 Restatement confirmed by Prashant Sharma, 2026-11-10, with four answers: three slices on one branch; the API's
 `/health/live` in slice 0; the budget rule "measured × 1.2, rounded up to the next 10 KB"; dev ports 55080 (API) and
@@ -68,10 +82,12 @@ FILES      (slice-0-scaffold: generator output only)
                                                     test runner entry (Microsoft Testing Platform)
            api/Directory.Build.props                nullable, warnings as errors, RestorePackagesWithLockFile (locked restore in CI)
            api/Directory.Packages.props             central package versions: the only place a .NET version is written;
-                                                    xunit.v3.mtp-v2 4.0.2 in place of xunit.v3 and the VSTest packages (Q1, R3)
+                                                    xunit.v3.mtp-v2 4.0.2, no VSTest packages (v3: Q12, new-system.md v5)
            api/**/packages.lock.json                NuGet lock files, read by `dotnet restore --locked-mode`
            api/**/*.csproj, api/Jobwright.slnx      versions moved to central management; projects added to the solution;
                                                     both test projects net8.0 -> net10.0 (R4: one framework for every project)
+                                                    and `TestingPlatformDotnetTestSupport` removed from both, as the
+                                                    template's net10.0 output does (v3, W5); xunit.v3.mtp-v2 kept (Q12)
            api/src/Jobwright.Api/Program.cs         WeatherForecast removed; /health/live mapped (K2)
            api/src/Jobwright.Api/Properties/launchSettings.json  one http profile on 127.0.0.1:55080 (R7, K4); the
                                                     generated localhost:5066 and https 7131 profiles removed
@@ -90,7 +106,8 @@ FILES      (slice-0-scaffold: generator output only)
            web/src/lib/utils.test.ts                the web's real behaviour test (cn merges conflicting classes)
            web/src/app/page.tsx, layout.tsx         create-next-app's demo page replaced by a minimal "Jobwright" page
            web/public/*.svg (deleted)               the demo page's images
-           scripts/check.sh                         the COMMANDS of new-system.md: test, lint, build
+           scripts/check.sh                         the COMMANDS of new-system.md: test, lint, build; exports the three
+                                                    tool telemetry opt-outs (v3, Q13)
            (slice-0-ci: by hand)
            Dockerfile.web, Dockerfile.api, Dockerfile.worker   images from official bases by digest, non-root user;
                                                     the worker image also carries Jobwright.Admin (ADR 0001)
@@ -105,7 +122,9 @@ FILES      (slice-0-scaffold: generator output only)
            web/tests/e2e/accessibility.spec.ts      axe (@axe-core/playwright 4.14.0), WCAG 2.2 AA tags, every page, light/dark, 360/1440
            web/tests/e2e/budget.spec.ts             AC26 harness: sums script bytes of the first load; fails above the budget (K3)
            .github/workflows/ci.yml                 the gates as independent jobs, pinned by SHA, permissions contents: read,
-                                                    no secrets, concurrency per pull request (C7, C8)
+                                                    no secrets, concurrency per pull request (C7, C8); top-level env
+                                                    with the tool telemetry opt-outs (v3, Q13; also in each
+                                                    Dockerfile's build stage)
            scripts/check.sh                         adds the dev.sh test to `test`, and `browser` and `budget` modes
            (every slice) plans/NEW-jobwright/part-1/**  this plan, the bundles, the progress notes, the part index
 
@@ -121,7 +140,8 @@ TESTS      Slice 0 proves no spec criterion; each foundation it lays maps to a n
                         (in-process host, Microsoft.AspNetCore.Mvc.Testing; Category=Unit)
            U13 / ADR 0001  api/tests/Jobwright.ArchitectureTests/ModuleBoundaryTests.cs
                         `Modules_reference_only_SharedKernel_and_Contracts` (ArchUnitNET; seen red once with a temporary
-                        Tenancy -> Identity reference, local, not committed)
+                        Tenancy -> Identity reference, local, not committed; v3, W4: the red must carry ArchUnitNET's
+                        own violation message, not a binding exception)
            web          web/src/lib/utils.test.ts `cn keeps the last of two conflicting Tailwind classes` (Vitest unit)
            dev.sh       scripts/tests/test_dev.sh `refuses while a k3d cluster runs` (by name and by label),
                         `refuses when docker does not answer`, `fails naming the port when 55432 is taken` (bash, fake docker)
@@ -144,6 +164,8 @@ RISKS      R-a A generator adds an unlisted package (expected: @types/react-dom 
                eslint helpers) -> stop at the pin step; the design's approver decides each (OPEN Q1)
                Outcome (v2): the scaffold added cn, @tailwindcss/turbopack and xunit.v3.mtp-v2 instead; no coverlet,
                no ESLint helper; each decided in Q1 (R1 to R3), recorded in new-system.md by Q10
+               Outcome (v3): new-system.md v4 approved with xunit.v3; after the v3 challenge, xunit.v3.mtp-v2 stays
+               the direct reference, recorded by new-system.md v5 (Q12); its transitive graph is expected (Q11)
            R-b A generator writes an agent rules file (web/AGENTS.md, CLAUDE.md or similar) that agents would then load
                -> create-next-app does by default (FACT); `--no-agents-md` (Q6); STOP IF any other appears
            R-c Pinning down from what the generators resolved breaks the build -> the pin step runs the build; a version
@@ -200,11 +222,12 @@ OPEN       Q1 DECIDED (by Claude at Prashant Sharma's instruction, 2026-11-10): 
               - @tailwindcss/turbopack (added by create-next-app; web/next.config.ts loads it as the CSS loader):
                 kept, exact 4.3.5 (R2), Tailwind's own, the approved tailwindcss's release; no PostCSS config exists,
                 so @tailwindcss/postcss, which DEPENDENCIES names, is not added
-              - xunit.v3.mtp-v2 (added by the xunit3 template to both test projects): kept, central pin 4.0.2 (R3),
-                xUnit's own; xunit.runner.visualstudio and Microsoft.NET.Test.Sdk are not added (they serve VSTest
-                mode only; Facts checked). Alternative for the design approver under Q10: from 4.0.0, the approved
-                xunit.v3 selects the platform's v2 by default (Facts checked), so it would do the same with no new
-                package name; R3 stands unless he chooses it
+              - xunit.v3.mtp-v2 (added by the xunit3 template to both test projects): kept, central pin 4.0.2 (R3,
+                reaffirmed in v3 by Q12). new-system.md v4 chose xunit.v3 4.0.2 instead; the v3 challenge showed
+                xunit.v3 is an alias for whichever platform package its major version points at, and that the
+                template never writes it (W1, W2), and Prashant Sharma chose xunit.v3.mtp-v2 again, for
+                new-system.md v5 (Q12). xunit.runner.visualstudio and Microsoft.NET.Test.Sdk are not added (they
+                serve VSTest mode only; Facts checked)
               - shadcn: stays (approved, 4.23.0) but moves from dependencies to devDependencies, exact (R5); it is
                 needed at build time, since web/src/app/globals.css imports "shadcn/tailwind.css", so it is no
                 longer "scaffolding only" as new-system.md says (Q10)
@@ -274,7 +297,10 @@ OPEN       Q1 DECIDED (by Claude at Prashant Sharma's instruction, 2026-11-10): 
            Q8 DECIDED (Prashant Sharma, 2026-11-10): the design's U13 fallback (a reflection test over project
               references, no library) is pre-approved; if ArchUnitNET does not run, slice-0-skeleton writes it and
               removes the ArchUnitNET reference, recording why in its progress note
-           Q10 (v2) new-system.md v3 disagrees with Q1's v2 decisions: DEPENDENCIES names clsx and tailwind-merge (R1
+           Q10 CLOSED (v3): new-system.md v4 APPROVED by Prashant Sharma (tech lead, design approver), 2026-11-10,
+              root commit 5d38c10, with the v4 review lists; he chose xunit.v3 4.0.2 over xunit.v3.mtp-v2, which
+              the v3 challenge reopened (Q12). The question as v2 put it:
+              (v2) new-system.md v3 disagrees with Q1's v2 decisions: DEPENDENCIES names clsx and tailwind-merge (R1
               keeps cn), @tailwindcss/postcss (R2 keeps @tailwindcss/turbopack), xunit.v3 with xunit.runner.visualstudio
               and Microsoft.NET.Test.Sdk "kept ... until the platform mode is proved" (R3 keeps xunit.v3.mtp-v2 and
               adds neither); Pinned versions calls shadcn "scaffolding only" (R5: a build-time devDependency); and
@@ -293,6 +319,37 @@ OPEN       Q1 DECIDED (by Claude at Prashant Sharma's instruction, 2026-11-10): 
               no Tailwind; V9) -> Prashant Sharma (design approver) approves v4. BLOCKS slice-0-skeleton: its build
               starts only after new-system.md v4 is APPROVED (bundle OPEN). If he chooses xunit.v3 over
               xunit.v3.mtp-v2, this plan and the bundle change again before the build
+           Q11 DECIDED (Prashant Sharma, 2026-11-11, at plan v3's restatement): new-system.md v4 says xunit.v3 is used
+              "alone" and xunit.v3.mtp-v2 "is not used"; but xunit.v3 4.0.2 depends on exactly xunit.v3.mtp-v2
+              [4.0.2] (FACT, Facts checked v3), so mtp-v2 is in the lock files under either choice. Decision: xunit's
+              and the platform's transitive packages are expected at slice-0-skeleton's step 2 CHECKPOINT and listed
+              in the pull request, not a stop; xunit.v3.core.mtp-v2 or xunit.v3.assert at any version other than
+              4.0.2 is a stop. The v3 challenge (W3) widened the list beyond the three xunit names: the platform
+              also brings Microsoft.Testing.Extensions.Telemetry 2.5.1, Microsoft.ApplicationInsights 2.23.0,
+              Microsoft.Win32.Registry 5.0.0, System.Security.AccessControl 6.0.1 and Microsoft.Bcl.AsyncInterfaces
+              6.0.0, and ArchUnitNET brings System.Net.Http 4.3.4 and System.Text.RegularExpressions 4.3.1; the
+              bundle names each, and Q12's v5 lists them for the design approver
+           Q12 (v3) BLOCKS slice-0-skeleton. Prashant Sharma (design approver), 2026-11-11, after the v3 challenge (W1,
+              W2): the test projects reference xunit.v3.mtp-v2 4.0.2, as the template generates them, not new-system.md
+              v4's xunit.v3. Why: xunit.v3 is an alias, 3.2.2 for mtp-v1 and 4.0.2 for mtp-v2, so a one-line bump
+              could change the platform's major version unseen; the name xunit.v3.mtp-v2 says it; and every
+              `dotnet new xunit3` writes it, so no project needs the hand edit -> the workspace root drafts
+              new-system.md v5: DEPENDENCIES and Pinned versions name xunit.v3.mtp-v2 4.0.2 in place of xunit.v3
+              (xunit.v3.templates 4.0.2 stays); SCAFFOLD's note says slice-0-skeleton changes the test projects to
+              net10.0 only, and that later test projects are generated with `dotnet new xunit3 --Framework net10.0`;
+              the v4 review lists' two test-project rows and the "xunit.v3.mtp-v2 in place of xunit.v3"
+              alternative are corrected (mtp-v2 is in the graph under either choice); the transitive packages of
+              Q11 are listed for review; and Q13's opt-outs are recorded if he wants them in the design. Prashant
+              Sharma approves v5. slice-0-skeleton step 0 stops without an APPROVED v5 line naming xunit.v3.mtp-v2
+           Q13 DECIDED (Prashant Sharma, 2026-11-11, from the v3 challenge W3): tool telemetry is switched off wherever
+              this repository runs tools: scripts/check.sh exports DOTNET_CLI_TELEMETRY_OPTOUT=1,
+              TESTINGPLATFORM_TELEMETRY_OPTOUT=1 and NEXT_TELEMETRY_DISABLED=1 (slice-0-skeleton step 8); ci.yml sets
+              them in a top-level env and each Dockerfile's build stage sets its own (slice-0-ci steps 3 and 4).
+              Why: Microsoft Testing Platform's telemetry extension, the .NET SDK and Next.js send usage data to their
+              vendors by default (Facts checked v3), and the requirements route telemetry only to the owner's lab
+              (requirements 9.1, "Telemetry: OpenTelemetry to the owner's lab collector"). No dependency changes.
+              A person's own shell is theirs to set; scripts/dev.sh (slice-0-ci) inherits the variables only if it
+              sources them, so slice-0-ci step 1 exports them there too
 
 FACTS      (checking-official-docs, see "Facts checked" below)
 
@@ -314,7 +371,8 @@ APPROVAL   plan.md v1 (commit a522963, with Q1 and Q8 as recorded in the commit 
 
 ## Hidden decisions flagged for their owner
 
-- **New dependency:** none beyond `new-system.md`, except what the generators added and OPEN Q1 keeps (@types/react-dom and Microsoft.Extensions.Hosting, recorded in new-system.md v3; v2: cn, @tailwindcss/turbopack, xunit.v3.mtp-v2, and shadcn's move to a build-time devDependency), each listed in the pull request and recorded in new-system.md v4 by the design approver (Q10, which blocks slice-0-skeleton).
+- **New dependency:** none beyond `new-system.md`, which records what the generators added and OPEN Q1 keeps (@types/react-dom and Microsoft.Extensions.Hosting from v3; cn, @tailwindcss/turbopack and shadcn as a build-time devDependency from v4). v3: the test framework reference is xunit.v3.mtp-v2 4.0.2, a change to v4 that the design approver records in new-system.md v5 (Q12, which blocks slice-0-skeleton). Each is listed in the pull request.
+- **Data leaving the machine (v3):** tool telemetry to Microsoft and Vercel is switched off in the repository's scripts, CI and images (Q13, decided by Prashant Sharma).
 - **Change to the approved COMMANDS:** `scripts/check.sh test` also runs `scripts/tests/test_dev.sh`, and check.sh
   gains `browser` and `budget` modes for CI's gates 8 and 9, which `new-system.md` names but gives no command.
   AGENTS.md's Quality bar says the axe and budget commands are "written by slice 0". The AGENTS.md lines they fill
@@ -344,6 +402,11 @@ beyond these (each bundle's USE SKILLS).
 | FACT | Settings come from the command line, environment variables and pnpm-workspace.yaml; the environment form shown is `PNPM_CONFIG_<SETTING>` (for other settings); `strictDepBuilds: false` prints a warning instead of exiting; ignored builds are added to pnpm-workspace.yaml with a placeholder | pnpm.io/settings; pnpm.io/settings/build | Q6 |
 | FACT | (v2) From xunit.v3 4.0.0, `xunit.v3` installs Microsoft Testing Platform v2 by default; `xunit.v3.mtp-v2` selects v2 explicitly; `mtp-v1` exists only for 3.x. On SDK 10, global.json's `test.runner` selects the platform; `TestingPlatformDotnetTestSupport` (in the generated csproj) is described only for SDK 8 and 9. The VSTest packages are needed only in VSTest mode | xunit.net/docs/getting-started/v3/microsoft-testing-platform, read 2026-11-10 | Q1 (R3), Q10; slice-0-skeleton step 2 |
 | FACT | (v2) TngTech.ArchUnitNET.xUnitV3 0.13.5 depends on TngTech.ArchUnitNET 0.13.5 and `xunit.v3.assert` >= 1.1.0, not on `xunit.v3`; xunit.v3.mtp-v2 4.0.2 requires `xunit.v3.assert` [4.0.2], so the two resolve together | nuget.org nuspecs of both packages, read 2026-11-10 | slice-0-skeleton step 2, U13 |
+| FACT | (v3) xunit.v3 4.0.2's only dependency is xunit.v3.mtp-v2 [4.0.2] (net472 and net8.0 groups); both packages hold only `lib/*/_._` and a README. xunit.v3.mtp-v2 depends on xunit.v3.core.mtp-v2 [4.0.2], xunit.v3.assert [4.0.2] and xunit.analyzers 2.2.0, with no include or exclude attributes. The build logic is in xunit.v3.core.mtp-v2's `buildTransitive/` props and targets | api.nuget.org v3-flatcontainer: the nuspecs and .nupkg listings of xunit.v3, xunit.v3.mtp-v2, xunit.v3.core.mtp-v2 4.0.2, read 2026-11-11 | Q1, Q11; slice-0-skeleton step 2 |
+| FACT | (v3) xunit.v3 is an alias for a platform package that changes with its major version: 3.2.2 depends on exactly xunit.v3.mtp-v1 [3.2.2]; 4.0.2 on exactly xunit.v3.mtp-v2 [4.0.2] | api.nuget.org nuspecs of xunit.v3 3.2.2 and 4.0.2, read 2026-11-11 | Q12 (W1) |
+| FACT | (v3) The xunit3 template 4.0.2 writes xunit.v3.mtp-v2 (default), xunit.v3.aot.mtp-v2 (NativeAOT) or xunit.v3.mtp-off with the VSTest packages; never xunit.v3. It leaves `TestingPlatformDotnetTestSupport` out when Framework is net10.0 | xunit.v3.templates.4.0.2.nupkg, content/project/xunit3/cs/TestProject.csproj and .template.config/template.json (the copy in ~/.templateengine), read 2026-11-11 | Q12 (W2), W5; slice-0-skeleton step 2 |
+| FACT | (v3) The scaffold's test graph (net8.0) holds Microsoft.Testing.Extensions.Telemetry 2.5.1, Microsoft.ApplicationInsights 2.23.0, Microsoft.Win32.Registry 5.0.0, System.Security.AccessControl 6.0.1, Microsoft.Bcl.AsyncInterfaces 6.0.0 | api/tests/Jobwright.Api.Tests/obj/project.assets.json (generated, untracked), read 2026-11-11 | Q11, Q13 |
+| FACT | (v3) Opt-outs: TESTINGPLATFORM_TELEMETRY_OPTOUT or DOTNET_CLI_TELEMETRY_OPTOUT set to 1 switches Microsoft Testing Platform's telemetry off; DOTNET_CLI_TELEMETRY_OPTOUT=1 the .NET SDK's; NEXT_TELEMETRY_DISABLED=1 Next.js's | learn.microsoft.com/dotnet/core/testing/microsoft-testing-platform-telemetry; learn.microsoft.com/dotnet/core/tools/telemetry; nextjs.org/telemetry, read 2026-11-11 | Q13 |
 | FACT | pnpm 11+ replaces onlyBuiltDependencies with `allowBuilds`; packages not listed are disallowed; `strictDepBuilds` defaults to true, so an install with unreviewed build scripts exits non-zero; `--frozen-lockfile` is the CI default when a lock file exists | pnpm.io/settings/build; pnpm.io/cli/install | Q6; slice-0-skeleton step 3 |
 
 ## Challenged
@@ -381,7 +444,7 @@ Q10 blocker) and its labelled assumptions, briefed to oppose; it read the genera
 | V5 | Root global.json and dotnet-tools.json fall outside an `api/` build context, so the images lose the SDK pin and the test runner; `rollForward` disabled breaks on an image bump | serious | Change: slice-0-ci step 3 names the repository root as the build context. Evidence: the SDK image is pinned to 10.0.403 by digest (plan C5) and Renovate is off (new-system.md v2, "Renovate off"), so no automated bump |
 | V6 | `start -H 127.0.0.1` makes a container unreachable; Playwright, Keycloak redirects, CORS and cookies break if localhost and 127.0.0.1 are mixed; the https profile must go too | serious | Evidence: the image runs the standalone server.js with `HOSTNAME` (plan Facts checked; slice-0-ci step 3), never `pnpm start`; Playwright's webServer is `next start` on 127.0.0.1:55300 (FILES), the same as the script; step 3b removes the https profile. Risk for part 3 (owner Prashant Sharma, tech lead): the Keycloak redirect URIs and the API base URL use 127.0.0.1, never localhost (K4) |
 | V7 | The ArchUnitNET smoke test passes vacuously over empty modules | serious | Evidence: already planned (C11): slice-0-skeleton step 6 asserts that each module assembly was loaded and shows the rule red with a temporary Tenancy -> Identity reference |
-| V8 | Both csproj keep `TestingPlatformDotnetTestSupport` (a bridge for SDK 8 and 9); without the VSTest packages, an IDE's test explorer finds tests only with the platform enabled | minor | Evidence: xunit.net describes the property only for SDK 8 and 9 (Facts checked); INFERENCE: it has no effect on SDK 10 with global.json's runner, so it stays as generated (no DO step edits it). Accepted risk (Prashant Sharma): IDE discovery needs the platform switched on; aidlc-onboard (confirm) writes it into the map. `xunit.runner.json` is xUnit's own configuration under either mode |
+| V8 | Both csproj keep `TestingPlatformDotnetTestSupport` (a bridge for SDK 8 and 9); without the VSTest packages, an IDE's test explorer finds tests only with the platform enabled | minor | Evidence: xunit.net describes the property only for SDK 8 and 9 (Facts checked); INFERENCE: it has no effect on SDK 10 with global.json's runner, so it stays as generated (no DO step edits it). Accepted risk (Prashant Sharma): IDE discovery needs the platform switched on; aidlc-onboard (confirm) writes it into the map. `xunit.runner.json` is xUnit's own configuration under either mode. Superseded in v3 by W5: the property is removed |
 | V9 | @tailwindcss/turbopack ties Tailwind to Turbopack; it is still `^4` | minor | Change: Q10 states the tie for the approver. Evidence: step 3 pins it exactly to 4.3.5; the only unit test (cn) needs no CSS |
 | V10 | react 19.3.1 moves away from the generator's 19.3.0; react-dom must move with it; pins must hold in the lock file and CI | minor | Evidence: step 3 pins react and react-dom together; the step 3 CHECKPOINT and DONE WHEN read versions from the lock file; `--frozen-lockfile` is CI's default (Facts checked). A peer conflict with next 16.4.5 is a stop (R-c) |
 | V11 | No Directory.Packages.props, so versions drift per csproj | minor | Evidence: step 2 creates api/Directory.Packages.props and removes Version= from every PackageReference |
@@ -393,3 +456,25 @@ Simplest alternative considered: write the skeleton by hand without generators, 
 and build, adding axe and the budget in part 3. Not taken: new-system.md's SCAFFOLD is the design approver's decision
 and AGENTS.md says slice 0 writes the axe and budget commands. Changing either is a design amendment for Prashant
 Sharma, not a planning choice.
+
+### Challenged (v3)
+
+stress-testing-decisions, 2026-11-11: a fresh reviewer, given only v3's first decision paragraph (xunit.v3 4.0.2 in
+place of xunit.v3.mtp-v2, transitive mtp-v2 accepted) and its nine labelled assumptions, briefed to oppose; it read
+the nuspecs, the template package and the generated assets file. Seven objections; the facts behind W1, W2, W3 and W5
+were checked again by this session (Facts checked, v3).
+
+| ID | Objection | Severity | Answer |
+|---|---|---|---|
+| W1 | xunit.v3 is an alias whose platform package changes with its major version (3.2.2: mtp-v1; 4.0.x: mtp-v2), so a one-line bump of the central pin could switch the platform's major version, visible only as a transitive name in the lock files | serious | FACT, confirmed. Change: Prashant Sharma chose xunit.v3.mtp-v2 again (Q12), so the platform's version is in the name a reviewer reads; new-system.md v5 records it and blocks slice-0-skeleton |
+| W2 | The vendor's xunit3 template never writes xunit.v3, so every later test project needs a hand edit that nothing enforces; "not used" in v4 contradicts every lock file | serious | FACT, confirmed. Change: Q12 (the template's own package); v5 corrects the v4 rows; later test projects are generated with `--Framework net10.0` |
+| W3 | Accepting "three xunit names" lets more in: the platform's telemetry extension with Application Insights, registry and access-control packages, and ArchUnitNET's System packages; the telemetry sends usage data to Microsoft by default, while the requirements route telemetry only to the lab | serious | FACT, confirmed (assets file; vendor pages). Change: Q11 and the slice-0-skeleton bundle name every one of them for the CHECKPOINT and the pull request; Q13 (decided by Prashant Sharma) switches tool telemetry off in check.sh, dev.sh, ci.yml and the Dockerfiles. Applies under either xunit choice |
+| W4 | Step 6's "show it red" passes on a binding crash (MissingMethodException, TypeLoadException) as well as on a real violation, so U13 could be "proved" by a crash | serious | Change: slice-0-skeleton step 6 counts the red only if the output carries ArchUnitNET's own violation message naming the Tenancy -> Identity dependency |
+| W5 | Retargeting by hand keeps `TestingPlatformDotnetTestSupport`, which the template's own net10.0 output leaves out; V8's "no effect" is untested | minor | FACT, confirmed (template `#if (Framework != "net10.0" ...)`). Change (Prashant Sharma, 2026-11-11): step 2 removes the property with the retarget, reversing V8's accepted risk; tests not discovered without it is a stop |
+| W6 | On net10.0 the restore prunes packages the framework provides and NuGet audit checks transitive packages, so the lock files will not match the net8.0 graph that was reviewed, and an audit warning under TreatWarningsAsErrors fails the restore | minor | Evidence: both failures are loud. Change: step 2's CHECKPOINT reads the net10.0 lock files as new; STOP IF adds an audit warning that fails the restore (never suppressed: AGENTS.md quality floor) |
+| W7 | Rollback is cheap now (two names, one pin, fresh lock files) but becomes a design amendment once merged, and must be repeated in every later test project | minor | Evidence: Q12 takes the reversal now, before any build, when it costs one new-system.md version. Nothing is irreversible: nothing is built, pushed or published |
+
+Risks accepted: none new. V8's accepted risk is withdrawn (W5).
+
+Simplest alternative considered: the reviewer's own, keep xunit.v3.mtp-v2 as generated and amend the design row.
+Taken (Q12).
