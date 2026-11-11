@@ -110,8 +110,10 @@ SCANS      dependency, secrets, SAST                        not run (4)         
   the test was new on this branch and the vacuity guard moved to the first assertion. Either way, record it.
   DECIDED by Prashant Sharma, 2026-11-11: approved as an exception. Reason: increment 1's modules hold no types
   until part 3, and ArchUnitNET refuses a rule that matches none. Owner: Prashant Sharma. Expiry: part 3, when the
-  first module gets a type, removes `.WithoutRequiringPositiveResults()`. Recorded at his instruction; his approval
-  in the pull request is his own comment on #1
+  first module gets a type, removes `.WithoutRequiringPositiveResults()`. Recorded at his instruction; the approval
+  in the pull request, with points 2 and 3 below, is the comment
+  https://github.com/prashantsharma18/jobwright-app/pull/1#issuecomment-6793457315 (2026-11-11), posted by Claude
+  under his account at his instruction
 - **The scaffold review was delegated.** You asked Claude to review recipe commit 06a65b0 and take decisions R1 to R9
   on your behalf (progress-slice-0-scaffold.md). You have not read that generated diff yourself, so your review of
   this pull request is the human check of it.
