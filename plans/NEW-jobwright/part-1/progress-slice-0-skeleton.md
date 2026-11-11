@@ -6,8 +6,7 @@ File: `plans/NEW-jobwright/part-1/progress-slice-0-skeleton.md`, committed on it
 then with the slice; the compliance reviewer and the slice runner read it.
 
 ```text
-STATUS      done (2026-11-11), on equivalent local evidence (D8): `scripts/check.sh` itself has not run end to end
-            in an agent session; Prashant Sharma runs it once before pushing
+STATUS      done (2026-11-11): `scripts/check.sh lint`, `test` and `build` all exit 0 (D8 closed)
 MODE        hands-on
 ```
 
@@ -204,7 +203,12 @@ Read from the ten api/**/packages.lock.json (net10.0 and net10.0/linux-x64), com
   build, so the whole command would report nothing more; not proved. Not lowered: no threshold, suppression or skip.
   Before pushing, Prashant Sharma runs `scripts/check.sh lint && scripts/check.sh test && scripts/check.sh build`;
   a red result reopens this slice. slice-0-ci's CI is the first trusted run. Decided by Claude at Prashant Sharma's
-  instruction ("take appropriate decisions on my behalf"), 2026-11-11
+  instruction ("take appropriate decisions on my behalf"), 2026-11-11. CLOSED the same day: Prashant Sharma set
+  `sandbox.enabled: false` (.claude/settings.json, his change, not committed by the agent) and the full run passed
+  unsandboxed: `scripts/check.sh lint` exit 0 (eslint, prettier, tsc, dotnet format --verify-no-changes); `test`
+  exit 0 (web 1 file, 2 passed; dotnet test Api.Tests and ArchitectureTests passed, total 2, failed 0, skipped 0);
+  `build` exit 0 (next build compiled; dotnet build -c Release 0 warnings, 0 errors), with no `-m:1` and no
+  EnableSourceControlManagerQueries. The INFERENCE above no longer matters. Re-enable the sandbox after slice 0
 - D9 (closing the open items, same instruction, 2026-11-11):
   D5 fonts: keep `next/font/google` for slice 0; slice-0-ci gives the web build job and Dockerfile.web's build stage
   egress to fonts.googleapis.com and fonts.gstatic.com (no new dependency), and part 3 revisits self-hosting with the
