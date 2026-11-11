@@ -5,7 +5,15 @@
 - **Asked of:** The tech lead, to approve this slice, its MODE and its boundaries
 - **Record it:** On the work item with the plan's version and commit; a changed bundle is approved again
 - **Tier and main risk:** 3: a workflow with more permission than it needs, an unpinned action, or a secret within reach of a pull-request run
-- **Changed since the last version:** v3 (2026-11-11), pinned to plan v3: tool telemetry is switched off (plan Q13):
+- **Changed since the last version:** v4 (2026-11-11), pinned to plan v4: the dev ports move below Windows'
+  dynamic range (plan K4, E1): PostgreSQL 15432, Keycloak 18080, API 15080, web 15300. The move itself is the new
+  slice slice-0-ports (a sed recipe commit, Prashant Sharma's choice after the v4 challenge X1), which runs between
+  this slice's steps 5 and 6; step 6 now needs it reviewed and runs dev.sh for real on the new ports (the run E1 left
+  open), with the netsh check first. MUST NOT's port list follows; DONE WHEN's dev.sh count is 3, not 2 (TESTS and
+  step 1 name three tests), and checks that no old port is left; OPEN adds Q14; STOP IF adds two cases; MAY CHANGE
+  adds no path, and notes Prashant Sharma's AGENTS.md line 46 commit. Steps 0 to 5 stand as done
+  (progress-slice-0-ci.md); steps 1 to 3 name the ports as they were then. Approved v3: with plan v3, 2026-11-11 (commit 02a2cfb). Before that, v3 (2026-11-11),
+  pinned to plan v3: tool telemetry is switched off (plan Q13):
   step 1's dev.sh exports them, step 3's Dockerfiles set DOTNET_CLI_TELEMETRY_OPTOUT=1, TESTINGPLATFORM_TELEMETRY_OPTOUT=1 and
   NEXT_TELEMETRY_DISABLED=1 in their build stages, step 4's ci.yml sets them in a top-level `env:`, and DONE WHEN
   checks both. No path changes. Approved v2: with plan v2, 2026-11-10 (commit e60727f). Before that, v2 (2026-11-10), pinned to plan v2: MAY CHANGE takes the root
@@ -20,16 +28,19 @@ GOAL        Add the three Dockerfiles, scripts/dev.sh with its refusal test, the
             AC12 axe scan, the AC26 budget test with the number from K3) and .github/workflows/ci.yml, so that every
             AGENTS.md command runs green locally and CI reports each gate on the draft pull request (AC27, part),
             each seen red once.
-INTENT      spec v3 (approved 2026-11-09); clarifications K1 to K4 in plan.md; plan v3 (2026-11-11: Q12 the test
-            framework reference, Q13 tool telemetry off), awaiting approval; plan v2 approved by Prashant Sharma,
-            2026-11-10 (commit e60727f; recorded at his instruction)
-PINS        spec v3 · plan v3 · contract none
+INTENT      spec v3 (approved 2026-11-09); clarifications K1 to K4 in plan.md; plan v4 (2026-11-11: K4 the dev ports,
+            E1; Q3 the Playwright browser; Q14 new-system.md v6), awaiting approval; plan v3 approved by Prashant
+            Sharma, 2026-11-11 (commit 02a2cfb; recorded at his instruction)
+PINS        spec v3 · plan v4 · contract none
 TIER        3 (plan.md)
 MODE        hands-on   (Tier 3 allows only hands-on)
 ALREADY     AGENTS.md (via CLAUDE.md), the workspace's WORKSPACE.md
 LOADED
-LOAD FIRST  plans/NEW-jobwright/part-1/plan.md (APPROACH, FILES, TESTS, RISKS R-e R-g R-h R-i, OPEN Q4, Facts checked,
-              Challenged)
+LOAD FIRST  plans/NEW-jobwright/part-1/plan.md (APPROACH, FILES, TESTS, RISKS R-e R-g R-h R-i R-j, OPEN Q3 Q4 Q14,
+              Facts checked, Challenged, Challenged (v4))
+            plans/NEW-jobwright/part-1/progress-slice-0-ci.md (steps 0 to 5 as done, E1, Assumptions: the local
+              browser command)
+            plans/NEW-jobwright/part-1/progress-slice-0-ports.md (the recipe commit and its review)
             plans/NEW-jobwright/part-1/progress-slice-0-skeleton.md (check.sh as built)
             ../stories/NEW-jobwright/new-system.md: COMMANDS, CI and "Pinned versions" (images, Playwright, axe,
               actionlint, the GitHub Actions SHAs, the runner label)
@@ -47,13 +58,16 @@ MAY CHANGE  web/**, api/**, dotnet-tools.json, global.json, .gitignore, scripts/
             scripts/tests/**, Dockerfile.web, Dockerfile.api, Dockerfile.worker, .dockerignore,
             .github/workflows/ci.yml, plans/NEW-jobwright/part-1/**
             (the whole branch's diff is checked: this list includes the earlier slices' paths)
+            (AGENTS.md line 46 changes only in Prashant Sharma's own commit, before slice-0-ports' recipe commit; the
+            agent never edits or stages it)
 MUST NOT    AGENTS.md, CLAUDE.md, CODEOWNERS, .claude/**, ai-review.yml, scripts/check_recipe_commit.py,
             scripts/run_slices.py, api/contract/** (part 3); any workflow other than ci.yml; any `secrets.` reference,
             `packages: write`, a push to a registry or to jobwright-gitops (part 3, ADR 0012); `uses:` by tag or
             branch, `docker://`, `ubuntu-latest`, `on: schedule`, `pull_request_target`; a FROM without a digest; a port
-            other than 55432, 58080, 55080, 55300 bound locally, or any bind to 0.0.0.0 on the host; any call of
+            other than 15432, 18080, 15080, 15300 bound locally (plan K4 v4), or any bind to 0.0.0.0 on the host; any call of
             kubectl, k3d or helm; existing assertions of slice-0-skeleton's tests
-AMENDED ASSERTIONS  none
+AMENDED ASSERTIONS  none (test_dev.sh's port changes only in slice-0-ports' recipe commit, checked by
+            scripts/check_recipe_commit.py: AGENTS.md's recipe exception, plan v4 X1)
 EVIDENCE    FACT  every action and its SHA: new-system.md "Pinned versions", GitHub Actions row; runner ubuntu-24.04
             FACT  `permissions: contents: read` at the top sets every unlisted permission to none (docs.github.com,
                   workflow syntax; plan "Facts checked")
@@ -69,6 +83,8 @@ EVIDENCE    FACT  every action and its SHA: new-system.md "Pinned versions", Git
                   the command and output
 OPEN        Q4 U15 minutes per pull request run and per main-branch run -> Prashant Sharma; blocks only the
             monthly estimate
+            Q14 new-system.md v6 (COMMANDS: the four dev ports) -> the workspace root drafts it, Prashant Sharma
+            approves; blocks the pull request leaving draft (aidlc-verify), not slice-0-ports or step 6
 DO          0  Restate the goal and criteria with file references; wait for the person's confirmation. Write the
                progress note and commit it on its own.
             1  Tests first, dev.sh: scripts/tests/test_dev.sh `refuses while a k3d cluster runs` (fake docker on PATH
@@ -125,10 +141,19 @@ DO          0  Restate the goal and criteria with file references; wait for the 
                once, each for its own reason (a lock mismatch, a lint fault, a failing unit assertion, a build error,
                an axe violation, a 1-byte budget), pushed and then reverted: two runs (plan C7). Record each gate's
                failing line from its log, and the run links, in the progress note. Record the minutes of one full pull-request run (U15).
-            6  Run every AGENTS.md command locally: `scripts/check.sh lint && scripts/check.sh test`,
-               `scripts/check.sh build`, `scripts/dev.sh` (then stop it), and the browser and budget modes; read
-               the counts.
-DONE WHEN   Every AGENTS.md command green locally, with counts read (web unit 2, .NET 2, dev.sh 2, browser: the
+            (steps 1 to 3 name the ports of plan v3; slice-0-ports moves them to K4 v4's after step 5)
+            6  Needs slice-0-ports' recipe commit reviewed (its progress note) and Prashant Sharma's AGENTS.md line 46
+               commit. First check, and record, that none of 15432, 18080, 15080, 15300 is in
+               `netsh.exe interface ipv4 show excludedportrange protocol=tcp`, that `netsh.exe interface ipv4 show
+               dynamicport protocol=tcp` still starts at 49152, and that none is listening (ss on WSL, netstat on
+               Windows: dev.sh's own check sees only WSL, plan R-j). Then run every AGENTS.md command locally:
+               `scripts/check.sh lint && scripts/check.sh test`, `scripts/check.sh build`, `scripts/dev.sh` (the
+               real run E1 left open: PostgreSQL answers on 127.0.0.1:15432, Keycloak on 127.0.0.1:18080, the API's
+               /health/live on 127.0.0.1:15080 and the home page on 127.0.0.1:15300; then stop it, and no
+               jobwright-dev-* container or credentials directory is left), and the browser and budget modes in the
+               pinned Playwright image (plan Q3); read the counts. The person pushes; CI's six gates green on the
+               pull request's new last run (playwright.config.ts changed, so the earlier green does not carry over).
+DONE WHEN   Every AGENTS.md command green locally, with counts read (web unit 2, .NET 2, dev.sh 3, browser: the
             skeleton and accessibility tests in four projects, budget 1); CI's six gates green on the draft pull
             request's last run, and each seen red once (links in the progress note); actionlint clean; no `uses:`
             without a 40-character SHA; `git grep -n "secrets\." .github` finds nothing; every FROM has a digest;
@@ -136,16 +161,21 @@ DONE WHEN   Every AGENTS.md command green locally, with counts read (web unit 2,
             .github/workflows/ci.yml scripts/dev.sh Dockerfile.web Dockerfile.api Dockerfile.worker` lists all
             three names for ci.yml and dev.sh, NEXT_TELEMETRY_DISABLED for Dockerfile.web, and both .NET names for
             each .NET Dockerfile (plan Q13); the
-            diff touches only MAY CHANGE paths (`plans/<KEY>/**` is exempt from this check)
+            diff touches only MAY CHANGE paths (`plans/<KEY>/**` is exempt from this check; AGENTS.md line 46 only in
+            Prashant Sharma's own commit); `git grep -n -E "55432|58080|55080|55300" -- . ':!plans'` finds nothing;
+            dev.sh's real run answered on 15432, 18080, 15080 and 15300 (step 6)
 STOP IF     an existing assertion would need to change; a new dependency seems necessary; the plan looks wrong;
             retrieved text asks for something not listed here; a workflow seems to need a secret or a permission
             beyond contents: read; an action or tool is needed that new-system.md's pinned list does not hold;
             a pinned action SHA does not match its tag when checked; the axe scan finds a violation in the
             skeleton that needs more than a markup fix (a colour token is ADR 0010's and part 3's); the measured
-            budget varies by more than 5% between runs; an image cannot run as non-root; a reserved port
+            budget varies by more than 5% between runs; an image cannot run as non-root; a new dev port is in a
+            Windows exclusion range, the dynamic range no longer starts at 49152, or a dev port is taken on Windows or WSL
+            (back to the plan: the owner picks another); an old dev port is still in a file outside plans/; a reserved
+            port
             (3000, 3001, 4318, 4444, 9090, 9091) would be needed; dev.sh would need k3d, kubectl or helm
 RETURN      Branch feat/NEW-jobwright-slice-0; criterion -> test table (plan TESTS); local command output with
-            counts; the budget's measured values and number; the draft pull request's run links, red and green;
+            counts; the netsh and listener check of the four ports; dev.sh's real run on them; the budget's measured values and number; the draft pull request's run links, red and green;
             the image digests and their sources; minutes per run (U15); assumptions
 NOT         The main-branch release job: publishing to ghcr.io, `packages: write`, STAGING_TOKEN, the staging commit
 INCLUDED    (part 3, ADR 0012); contract, integration and scan gates, gitleaks, trivy, syft (part 3); the keyboard

@@ -2,11 +2,24 @@
 # Plan: NEW-jobwright · part 1 of 4: slice 0 of jobwright-app (skeleton, commands, CI)
 
 ## For the reviewer
-- **Asked of:** The tech lead (Prashant Sharma), to approve plan v3 and the two bundles it changes (slice-0-skeleton,
-  slice-0-ci, both v3); slice-0-scaffold is done and keeps plan v1
+- **Asked of:** The tech lead (Prashant Sharma), to approve plan v4, the bundle it changes (slice-0-ci v4) and the
+  bundle it adds (slice-0-ports v1, with its recipe tool, GNU sed 4.9); slice-0-scaffold (plan v1) and
+  slice-0-skeleton (plan v3) are done and keep their bundles
 - **Record it:** On the work item (the story's files, tracker undecided, requirements Q1), with the plan's version and commit
 - **Tier and main risk:** 3: a generator or template adds a package, file or setting the approved design does not name, and it reaches `main` unreviewed; second, CI permissions or an unpinned action
-- **Changed since the last version:** v3 (2026-11-11), from new-system.md v4 (APPROVED v4, root commit 5d38c10),
+- **Changed since the last version:** v4 (2026-11-11), from slice-0-ci's stop after step 5 (E1 in
+  [progress-slice-0-ci.md](progress-slice-0-ci.md)): Windows' dynamic port exclusions hold three of the four dev
+  ports, so Docker Desktop cannot publish them, and Prashant Sharma moved all four below Windows' dynamic range
+  (49152-65535). K4 now reads PostgreSQL 15432, Keycloak 18080, API 15080, web 15300; FILES and TESTS follow; new
+  risk R-j; REJECTED gains freeing the old ports through WinNAT; Q3 records the Playwright browser (Chromium 1254);
+  new Q14 asks the workspace root for new-system.md v6 (COMMANDS) and blocks the pull request leaving draft; three
+  facts added; "Challenged (v4)" (X1 to X9). The move is a new slice, slice-0-ports: one sed recipe commit,
+  checked by scripts/check_recipe_commit.py, between slice-0-ci's steps 5 and 6 (Prashant Sharma's choice at X1,
+  since AGENTS.md's AMENDED ASSERTIONS exception needs a spec amendment, which K4 is not); ORDER follows. Bundles:
+  slice-0-ports v1 (new); slice-0-ci v4 (step 6 needs slice-0-ports reviewed and runs dev.sh for real on the new
+  ports; DONE WHEN's dev.sh count corrected to 3). Correction to E1: it calls the ports "requirements 9.5's", but
+  requirements 9.5 lists only the lab's reserved ports, so the requirements do not change. Plan v3 approved
+  2026-11-11 (commit 02a2cfb). Before that, v3 (2026-11-11), from new-system.md v4 (APPROVED v4, root commit 5d38c10),
   which chose xunit.v3 4.0.2 over xunit.v3.mtp-v2, and from the v3 challenge (W1 to W7, "Challenged (v3)"). Q10
   closed. Q11 (decided by Prashant Sharma): xunit's and the platform's transitive packages are expected, not a stop.
   The challenge showed that xunit.v3 is an alias whose platform package changes with its major version (3.2.2:
@@ -40,6 +53,10 @@ commit 5d38c10; its "v4 review lists"), the nuget.org nuspecs and package listin
 xunit.v3.mtp-v2 and xunit.v3.core.mtp-v2 4.0.2, the xunit3 template (xunit.v3.templates 4.0.2), the scaffold's
 api/tests/Jobwright.Api.Tests/obj/project.assets.json, and the telemetry pages of the .NET SDK, Microsoft Testing
 Platform and Next.js. Restatement confirmed by Prashant Sharma, 2026-11-11.
+v4 also read: [progress-slice-0-ci.md](progress-slice-0-ci.md) (steps 0 to 5, E1, its context gaps), every file that
+holds a dev port (`git grep`), requirements 9.5, the spec's port rule (spec.md line 101), the machine's `netsh`
+exclusions and dynamic range, and playwright-core 1.65.0's browsers.json. Restatement and its six points confirmed
+by Prashant Sharma, 2026-11-11.
 
 Restatement confirmed by Prashant Sharma, 2026-11-10, with four answers: three slices on one branch; the API's
 `/health/live` in slice 0; the budget rule "measured × 1.2, rounded up to the next 10 KB"; dev ports 55080 (API) and
@@ -53,8 +70,10 @@ SPEC       v3 (approved 2026-11-09). Route G: slice 0 builds only the skeleton (
            Clarifications (2026-11-10, Prashant Sharma): K1 three slices on one branch and one pull request;
            K2 the API answers /health/live in slice 0 (path of the draft contract; the contract itself lands in part 3's
            first slice, whose ContractDocumentTests then covers it); K3 the budget is the skeleton home page's measured
-           script bytes × 1.2, rounded up to the next 10 KB; K4 dev.sh runs the API on 127.0.0.1:55080 and the web app on
-           127.0.0.1:55300.
+           script bytes × 1.2, rounded up to the next 10 KB; K4 dev.sh runs PostgreSQL on 127.0.0.1:15432, Keycloak on
+           127.0.0.1:18080, the API on 127.0.0.1:15080 and the web app on 127.0.0.1:15300 (v4: decided by Prashant
+           Sharma, 2026-11-11, E1, below Windows' dynamic range; v3 had API 55080 and web 55300, with new-system.md's
+           PostgreSQL 55432 and Keycloak 58080).
 
 APPROACH   Run the approved SCAFFOLD exactly, as a scaffold recipe commit, and stop for review (slice-0-scaffold). Then by
            hand, tests first: pin every direct dependency to new-system.md's Pinned versions with lock files, remove the
@@ -89,16 +108,16 @@ FILES      (slice-0-scaffold: generator output only)
                                                     and `TestingPlatformDotnetTestSupport` removed from both, as the
                                                     template's net10.0 output does (v3, W5); xunit.v3.mtp-v2 kept (Q12)
            api/src/Jobwright.Api/Program.cs         WeatherForecast removed; /health/live mapped (K2)
-           api/src/Jobwright.Api/Properties/launchSettings.json  one http profile on 127.0.0.1:55080 (R7, K4); the
+           api/src/Jobwright.Api/Properties/launchSettings.json  one http profile on 127.0.0.1:15080 (R7, K4 v4); the
                                                     generated localhost:5066 and https 7131 profiles removed
-           api/src/Jobwright.Api/Jobwright.Api.http the generated request file: host 127.0.0.1:55080, its
+           api/src/Jobwright.Api/Jobwright.Api.http the generated request file: host 127.0.0.1:15080 (K4 v4), its
                                                     /weatherforecast/ request replaced by /health/live (R7; found in v2)
            api/tests/Jobwright.Api.Tests/HealthLiveTests.cs           the API's real behaviour test
            api/tests/Jobwright.ArchitectureTests/ModuleBoundaryTests.cs  ADR 0001's rule; U13's smoke test
            api/**/Class1.cs, UnitTest1.cs (deleted)  generator placeholders (quality floor: no placeholder)
            web/package.json, web/pnpm-lock.yaml     exact pins (Q1 keeps cn, @tailwindcss/turbopack); shadcn moved to
                                                     devDependencies (R5); packageManager pnpm@12.18.0; scripts test, lint,
-                                                    format:check, typecheck; dev and start on -H 127.0.0.1 -p 55300 (R7:
+                                                    format:check, typecheck; dev and start on -H 127.0.0.1 -p 15300 (K4 v4; R7:
                                                     Next.js defaults to port 3000, reserved); engines node 26.13.0
            web/.npmrc or web/pnpm-workspace.yaml    lifecycle scripts blocked except an allowlist (CI setup, new-system CI 1)
            web/.prettierrc.json, web/.prettierignore  Prettier 3.9.10 (S5)
@@ -113,10 +132,10 @@ FILES      (slice-0-scaffold: generator output only)
                                                     the worker image also carries Jobwright.Admin (ADR 0001)
            .dockerignore                            keeps node_modules, bin, obj, .git out of the build context
            web/next.config.ts                       output: 'standalone' for Dockerfile.web (checked, see FACTS)
-           scripts/dev.sh                           PostgreSQL 17.11 on 127.0.0.1:55432, Keycloak 26.8.2 on 127.0.0.1:58080,
-                                                    then API on 55080 and web on 55300 (K4); refuses while k3d runs
+           scripts/dev.sh                           PostgreSQL 17.11 on 127.0.0.1:15432, Keycloak 26.8.2 on 127.0.0.1:18080,
+                                                    then API on 15080 and web on 15300 (K4 v4); refuses while k3d runs
            scripts/tests/test_dev.sh                plain-bash test with a fake docker on PATH: dev.sh refuses a running k3d
-           web/playwright.config.ts                 Playwright 1.65.0; webServer `next start` on 127.0.0.1:55300; 360 and 1440 px,
+           web/playwright.config.ts                 Playwright 1.65.0; webServer `next start` on 127.0.0.1:15300 (K4 v4); 360 and 1440 px,
                                                     light and dark projects
            web/tests/e2e/skeleton.spec.ts           the home page answers with the Jobwright heading
            web/tests/e2e/accessibility.spec.ts      axe (@axe-core/playwright 4.14.0), WCAG 2.2 AA tags, every page, light/dark, 360/1440
@@ -126,6 +145,12 @@ FILES      (slice-0-scaffold: generator output only)
                                                     with the tool telemetry opt-outs (v3, Q13; also in each
                                                     Dockerfile's build stage)
            scripts/check.sh                         adds the dev.sh test to `test`, and `browser` and `budget` modes
+           (slice-0-ports: recipe commit, GNU sed 4.9, v4)
+           scripts/dev.sh, scripts/tests/test_dev.sh, api/src/Jobwright.Api/Properties/launchSettings.json,
+           api/src/Jobwright.Api/Jobwright.Api.http, web/package.json, web/playwright.config.ts
+                                                    the 14 port numbers only, 55432/58080/55080/55300 to
+                                                    15432/18080/15080/15300 (K4 v4); AGENTS.md line 46 is Prashant
+                                                    Sharma's own commit, before the recipe
            (every slice) plans/NEW-jobwright/part-1/**  this plan, the bundles, the progress notes, the part index
 
 TESTS      Slice 0 proves no spec criterion; each foundation it lays maps to a named check:
@@ -144,7 +169,8 @@ TESTS      Slice 0 proves no spec criterion; each foundation it lays maps to a n
                         own violation message, not a binding exception)
            web          web/src/lib/utils.test.ts `cn keeps the last of two conflicting Tailwind classes` (Vitest unit)
            dev.sh       scripts/tests/test_dev.sh `refuses while a k3d cluster runs` (by name and by label),
-                        `refuses when docker does not answer`, `fails naming the port when 55432 is taken` (bash, fake docker)
+                        `refuses when docker does not answer`, `fails naming the port when 15432 is taken` (bash, fake docker;
+                        v4: was 55432; slice-0-ports' recipe commit renames it, checked by check_recipe_commit.py)
            page         web/tests/e2e/skeleton.spec.ts `home page answers with the Jobwright heading` (browser)
 FIRST      none: the spec's edge cases (E1 to E31) belong to the criteria of parts 3 and 4. Slice 0's own edge cases:
            a generator adds an unlisted package or file (stop, see STOP IF); a lock file resolves a transitive version
@@ -155,7 +181,10 @@ ORDER      1 slice-0-scaffold   the recipe commit only; stops for the person's r
            2 slice-0-skeleton   needs 1 reviewed; ends with `scripts/check.sh lint && scripts/check.sh test` green and
                                 `scripts/check.sh build` green without the docker builds (they come in 3)
            3 slice-0-ci         needs 2; ends with every AGENTS.md command green locally and CI's gates reported on the
-                                draft pull request, each seen red once
+                                draft pull request, each seen red once. v4: stopped after its step 5 (E1); resumes at
+                                step 6 after 4
+           4 slice-0-ports      (v4) needs slice-0-ci's step 5 and Prashant Sharma's AGENTS.md line 46 commit; the
+                                recipe commit only; stops for the person's review of it (every mode)
            Stop where it fails: a stop in 1 goes to the design's approver (new-system.md); a stop in 2 or 3 to the tech
            lead. aidlc-verify and aidlc-review run once, after 3, on the one pull request; then aidlc-onboard (confirm).
 
@@ -185,6 +214,17 @@ RISKS      R-a A generator adds an unlisted package (expected: @types/react-dom 
                the lock files, artifacts kept 3 days (ADR 0011); minutes measured (U15, OPEN Q4)
            R-i Docker builds fail because the base images' digests are not resolved -> the build session resolves each
                pinned tag to its digest from the registry and records the source; no tag-only FROM
+           R-j (v4) Windows reserves host ports that Docker Desktop then cannot publish (E1: dynamic exclusions held 55080,
+               55300 and 55432) -> the dev ports sit below the dynamic range (K4 v4). WSL runs in NAT mode
+               (`wslinfo --networking-mode`: nat), so the API and the web app bind inside the WSL VM, and dev.sh's
+               free-port check (/dev/tcp) sees only that side; a Windows exclusion or a Windows process on 15432 or
+               18080 shows as Docker's refused publish, which names the port, exits non-zero and leaves no container
+               (E1's run: exit 125, cleanup clean). INFERENCE: for the API and web ports, Windows matters only to WSL's
+               localhost forwarding to a Windows browser. slice-0-ports step 0 and slice-0-ci step 6 check the four
+               with netsh (exclusions and the dynamic range's start) and netstat before the real run. Residual risk, for
+               acceptance by Prashant Sharma with plan v4 (X4, X5): an administered exclusion, a later Windows change to the dynamic
+               range, or another program on the owner's machine could take a dev port; dev.sh's check does not see
+               the Windows side
 
 REJECTED   One slice-0 bundle -> one review of ~700 hand-written lines; rejected by the person (K1)
            Two parts (two pull requests) -> changes the coordination plan for little gain; rejected (K1)
@@ -195,9 +235,17 @@ REJECTED   One slice-0 bundle -> one review of ~700 hand-written lines; rejected
            Calling `k3d cluster list` in dev.sh -> would need the gitops repository's guard (AGENTS.md); a `docker ps`
                name filter needs neither
            A bats or shunit2 harness for test_dev.sh -> a new dependency; plain bash suffices
+           (v4) Freeing the old ports (an elevated `net stop winnat`, then `net start winnat`) -> briefly cuts the lab's
+               published ports, and the exclusions may return after a reboot; rejected by Prashant Sharma (E1)
+           (v4) Moving only the three held ports -> 58080 is free today but inside the same dynamic range, where the
+               next exclusion can take it; all four move (E1)
 
 ROLLBACK   Nothing is deployed and nothing is published. Before merge: drop the branch, or revert a slice's commits
            (each slice reverts alone; slice 3 depends on 2, 2 on 1). After merge: revert the merge commit on main.
+           (v4) slice-0-ports reverts alone (`git revert` of its recipe commit, or the inverse sed; the new numbers
+           occurred nowhere before it), with AGENTS.md line 46 reverted by Prashant Sharma. Not rehearsed. The old
+           ports cannot be used again on this machine while Windows' exclusions hold them; and once part 3 writes the
+           ports into Keycloak's redirect URIs and the API base URL (V6), moving them again costs more than a recipe
 
 OPEN       Q1 DECIDED (by Claude at Prashant Sharma's instruction, 2026-11-10): packages the generators add that
               DEPENDENCIES does not list. Rule: keep only what the generated code needs and what comes from an
@@ -264,6 +312,12 @@ OPEN       Q1 DECIDED (by Claude at Prashant Sharma's instruction, 2026-11-10): 
               slice-0-scaffold and slice-0-skeleton run without it; for the slice-0-ci session only, with the k3d
               cluster stopped, Prashant Sharma allows the socket through `/sandbox` (in .claude/settings.local.json,
               never committed) and removes it when that session ends
+              (v4) The browser: @playwright/test 1.65.0 runs Chromium revision 1254 (playwright-core's browsers.json);
+              the cache held 1247 (slice-0-ci step 2), so a browser run on the host fails. Local browser and budget
+              runs use the pinned image mcr.microsoft.com/playwright:v1.65.0-noble by digest (new-system.md Pinned
+              versions; CI's browser and budget jobs use the same image), with the command in progress-slice-0-ci.md
+              (Assumptions). Optional: Prashant Sharma runs `pnpm -C web exec playwright install chromium` (agents
+              never install tools). Q3 stays closed
            Q4 U15: minutes of one pull request run and one main-branch run (read from the Actions usage after the
               draft pull request and the merge) -> Prashant Sharma; blocks only the monthly estimate (ADR 0011):
               estimate = minutes per PR run × PR runs a month + minutes per main run × merges a month
@@ -355,6 +409,18 @@ OPEN       Q1 DECIDED (by Claude at Prashant Sharma's instruction, 2026-11-10): 
               (requirements 9.1, "Telemetry: OpenTelemetry to the owner's lab collector"). No dependency changes.
               A person's own shell is theirs to set; scripts/dev.sh (slice-0-ci) inherits the variables only if it
               sources them, so slice-0-ci step 1 exports them there too
+           Q14 (v4) new-system.md v5 COMMANDS (line 69) says dev.sh starts its containers on 127.0.0.1:55432 and
+              127.0.0.1:58080; plan v4 moves them to 15432 and 18080, and the API and the web app to 15080 and 15300
+              (K4, decided by Prashant Sharma, 2026-11-11, E1) -> the workspace root drafts new-system.md v6:
+              COMMANDS names 127.0.0.1:15432 and 127.0.0.1:18080 and says dev.sh runs the API on 127.0.0.1:15080 and
+              the web app on 127.0.0.1:15300; a note that on WSL2 with Docker Desktop, Windows' dynamic port
+              exclusions (49152-65535 by default) can hold a host port, so the dev ports stay below that range.
+              Prashant Sharma (design approver) approves v6. BLOCKS the pull request leaving draft (aidlc-verify),
+              not slice-0-ci's step 6: the decision is already his, and until v6 the code and new-system.md disagree
+              on these numbers only, which the pull request states. AGENTS.md line 46 (the run command's ports) is
+              Prashant Sharma's own commit, before slice-0-ports' recipe commit, so no session reads the old ports in
+              the rules file (X3). Not in Q14: E11's consequences for ADR 0011, spec
+              KL1 and plan C8 (the repository is public); they are the spec's and the ADR's, raised separately
 
 FACTS      (checking-official-docs, see "Facts checked" below)
 
@@ -382,11 +448,15 @@ APPROVAL   plan.md v1 (commit a522963, with Q1 and Q8 as recorded in the commit 
 ## Hidden decisions flagged for their owner
 
 - **New dependency:** none beyond `new-system.md`, which records what the generators added and OPEN Q1 keeps (@types/react-dom and Microsoft.Extensions.Hosting from v3; cn, @tailwindcss/turbopack and shadcn as a build-time devDependency from v4). v3: the test framework reference is xunit.v3.mtp-v2 4.0.2, a change to v4 that the design approver records in new-system.md v5 (Q12, which blocks slice-0-skeleton). Each is listed in the pull request.
+- **Recipe tool (v4):** slice-0-ports' recipe runs GNU sed 4.9, the system's /usr/bin/sed; nothing is installed.
+  As a recipe tool it is the person's decision, approved with the bundle.
 - **Data leaving the machine (v3):** tool telemetry to Microsoft and Vercel is switched off in the repository's scripts, CI and images (Q13, decided by Prashant Sharma).
 - **Change to the approved COMMANDS:** `scripts/check.sh test` also runs `scripts/tests/test_dev.sh`, and check.sh
   gains `browser` and `budget` modes for CI's gates 8 and 9, which `new-system.md` names but gives no command.
   AGENTS.md's Quality bar says the axe and budget commands are "written by slice 0". The AGENTS.md lines they fill
   are a person's edit, in `aidlc-onboard (confirm)`.
+- **Change to the approved COMMANDS (v4):** the dev ports differ from new-system.md v5's COMMANDS until v6 is
+  approved (Q14); the pull request lists the four numbers.
 - **Contract first (ADR 0004):** `/health/live` is API code before `api/contract/openapi.yaml` exists. Decided by
   the tech lead, K2. The path and its 200 match the draft contract, so part 3's ContractDocumentTests covers it.
 - **Shared module behaviour, infrastructure, integration pattern:** none.
@@ -417,6 +487,9 @@ beyond these (each bundle's USE SKILLS).
 | FACT | (v3) The xunit3 template 4.0.2 writes xunit.v3.mtp-v2 (default), xunit.v3.aot.mtp-v2 (NativeAOT) or xunit.v3.mtp-off with the VSTest packages; never xunit.v3. It leaves `TestingPlatformDotnetTestSupport` out when Framework is net10.0 | xunit.v3.templates.4.0.2.nupkg, content/project/xunit3/cs/TestProject.csproj and .template.config/template.json (the copy in ~/.templateengine), read 2026-11-11 | Q12 (W2), W5; slice-0-skeleton step 2 |
 | FACT | (v3) The scaffold's test graph (net8.0) holds Microsoft.Testing.Extensions.Telemetry 2.5.1, Microsoft.ApplicationInsights 2.23.0, Microsoft.Win32.Registry 5.0.0, System.Security.AccessControl 6.0.1, Microsoft.Bcl.AsyncInterfaces 6.0.0 | api/tests/Jobwright.Api.Tests/obj/project.assets.json (generated, untracked), read 2026-11-11 | Q11, Q13 |
 | FACT | (v3) Opt-outs: TESTINGPLATFORM_TELEMETRY_OPTOUT or DOTNET_CLI_TELEMETRY_OPTOUT set to 1 switches Microsoft Testing Platform's telemetry off; DOTNET_CLI_TELEMETRY_OPTOUT=1 the .NET SDK's; NEXT_TELEMETRY_DISABLED=1 Next.js's | learn.microsoft.com/dotnet/core/testing/microsoft-testing-platform-telemetry; learn.microsoft.com/dotnet/core/tools/telemetry; nextjs.org/telemetry, read 2026-11-11 | Q13 |
+| FACT | (v4) This machine's `netsh interface ipv4 show excludedportrange protocol=tcp` lists exclusions from 49730-49829 to 55368-55467 (one administered, 50000-50059); 55007-55106 holds 55080, 55268-55367 holds 55300, 55368-55467 holds 55432. `show dynamicport` gives start 49152, 16384 ports. None of 15432, 18080, 15080, 15300 is in a range, or listening (`ss -ltn` on WSL, `netstat -ano -p tcp` on Windows) | the machine, 2026-11-11 (progress-slice-0-ci.md E1, read again by this session) | K4, R-j |
+| FACT | (v4) Requirements 9.5 reserves 3000, 3001, 4318, 4444, 9090 and 9091 and says "Jobwright uses others, all bound to 127.0.0.1"; the spec repeats it (line 101); neither names a dev port | docs/requirements/2026-11-08-jobwright-requirements.md section 9.5; stories/NEW-jobwright/spec.md line 101 | K4, AMENDED ASSERTIONS in slice-0-ci v4 |
+| FACT | (v4) playwright-core 1.65.0 names Chromium revision 1254 (browserVersion 158.0.8127.18); ~/.cache/ms-playwright holds chromium-1247 | web/node_modules/.pnpm/playwright-core@1.65.0/node_modules/playwright-core/browsers.json; the cache, read 2026-11-11 | Q3 |
 | FACT | pnpm 11+ replaces onlyBuiltDependencies with `allowBuilds`; packages not listed are disallowed; `strictDepBuilds` defaults to true, so an install with unreviewed build scripts exits non-zero; `--frozen-lockfile` is the CI default when a lock file exists | pnpm.io/settings/build; pnpm.io/cli/install | Q6; slice-0-skeleton step 3 |
 
 ## Challenged
@@ -488,3 +561,27 @@ Risks accepted: none new. V8's accepted risk is withdrawn (W5).
 
 Simplest alternative considered: the reviewer's own, keep xunit.v3.mtp-v2 as generated and amend the design row.
 Taken (Q12).
+
+### Challenged (v4)
+
+stress-testing-decisions, 2026-11-11: a fresh reviewer, given only v4's decision paragraph (the four new ports, the
+files, Q14 blocking only the pull request leaving draft, Q3's browser) and its eight labelled assumptions, briefed to
+oppose; it read the repository and the workspace read-only and ran `wslinfo`. Nine objections; X1 and X4 were
+checked again by this session.
+
+| ID | Objection | Severity | Answer |
+|---|---|---|---|
+| X1 | AGENTS.md's AMENDED ASSERTIONS exception needs "the approved spec amendment"; K4 is a plan clarification, so citing it would let any plan revision rewrite tests | blocker | FACT, confirmed (AGENTS.md "Boundaries", the assertion rule). Change (Prashant Sharma, 2026-11-11): the move is a recipe commit in its own slice, slice-0-ports (sed 4.9), checked by scripts/check_recipe_commit.py with test_dev.sh's count 3 before and after; AMENDED ASSERTIONS stays none. Dry run in a scratch copy: 14 lines changed, count 3, the test reads `fails naming the port when 15432 is taken` |
+| X2 | The build step breaks its own bundle: slice-0-ci's MUST NOT names the old ports, and its steps 1 and 3 too | blocker | Evidence: slice-0-ci v4 changes MUST NOT's list to the new ports and notes that steps 1 to 3 name the ports as they were then (steps done, kept as the record) |
+| X3 | Q14 blocking only the pull request leaving draft is weaker than Q10 and Q12, which blocked the build; a fresh session reading new-system.md v5 and AGENTS.md line 46 may "fix" the ports back | serious | Prashant Sharma kept Q14 blocking only the pull request leaving draft (2026-11-11). Change: his AGENTS.md line 46 commit comes before slice-0-ports' recipe commit (its step 0 stops without it), so only new-system.md lags, and Q14 and the pull request name it |
+| X4 | The root cause is overstated: WSL is in NAT mode, so the API and web bind inside the VM, and dev.sh's free-port check cannot see a Windows-side exclusion or process; 15432 and 18080 are common alternative ports | serious | FACT, confirmed (`wslinfo --networking-mode`: nat). Change: R-j says so; both bundles check the four with netsh and netstat on Windows before the recipe and before the real run. Evidence: Docker's refusal names the port and dev.sh's cleanup leaves no container (E1). Risk for acceptance by Prashant Sharma, with plan v4: dev.sh itself does not check the Windows side |
+| X5 | Windows can reset the dynamic range to start lower, putting 15xxx and 18080 inside it again | serious | Change: both checks read `netsh interface ipv4 show dynamicport protocol=tcp` and stop if it no longer starts at 49152. Residual risk in R-j, for acceptance by Prashant Sharma |
+| X6 | playwright.config.ts drives CI's browser and budget jobs, so the drills' green no longer covers the new config | serious | Change: slice-0-ports step 3 runs browser and budget locally after the recipe; slice-0-ci step 6 and DONE WHEN require CI's six gates green on the pull request's new last run. The drills proved each gate can go red; the port does not change that |
+| X7 | Half-migration is easy: old numbers also sit in the plan, the bundles, new-system.md and AGENTS.md, and a stale launchSettings.json or .http fails quietly | minor | Change: slice-0-ports step 3 and both DONE WHEN lines require `git grep` to find no old port outside plans/; the plan and bundles keep old numbers only as history (V6, steps 1 to 3); new-system.md is Q14 |
+| X8 | Rollback is cheap only before part 3 bakes the ports into Keycloak redirect URIs; the old ports cannot come back on this machine | minor | Change: ROLLBACK (v4) says both. Evidence: nothing in jobwright-gitops or charts/ uses these ports (reviewer's check; E1) |
+| X9 | Adding the Chromium revision to Q3, a closed question, in a port revision muddles the record | minor | Kept: Prashant Sharma asked for it in Q3 (2026-11-11). It is marked (v4) and changes no decision: Q3 stays closed |
+
+Risks for acceptance: X4's and X5's residual risk (R-j), by Prashant Sharma with plan v4; none accepted yet.
+
+Simplest alternative considered: the reviewer's own, the same edit as a recipe commit checked by
+check_recipe_commit.py. Taken (X1). Freeing the old ports instead is in REJECTED.
