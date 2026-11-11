@@ -30,7 +30,7 @@ Local counts: web unit 2, .NET 2, dev.sh 3, browser 8 (2 tests × 4 projects), b
 - Green [42965610747](https://github.com/prashantsharma18/jobwright-app/actions/runs/42965610747): all six green
 - Drill 1 [42966349758](https://github.com/prashantsharma18/jobwright-app/actions/runs/42966349758), a lock mismatch: setup red with `ERR_PNPM_OUTDATED_LOCKFILE ... vitest (lockfile: 5.1.0, manifest: 5.1.1)` (the other five red at the same install)
 - Drill 2 [42966685123](https://github.com/prashantsharma18/jobwright-app/actions/runs/42966685123), setup green and each other gate red for its own reason: lint (prettier, next.config.ts), test (HealthLive: Expected OK, Actual NotFound), build (Dockerfile.worker: drill-missing.props not found), browser (AC12 color-contrast in all four projects; skeleton passed), budget (Expected <= 1, Received 135165)
-- Revert 9e6c1dc: _final green run to come_
+- Revert 9e6c1dc, green again [42967216637](https://github.com/prashantsharma18/jobwright-app/actions/runs/42967216637): all six green
 - Minutes of one full run (U15): 1:44 wall clock, 5:48 job time; no Actions minutes billed (public repository, E11)
 
 ## For the reviewer (Prashant Sharma)

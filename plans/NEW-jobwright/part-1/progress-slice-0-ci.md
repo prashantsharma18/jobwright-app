@@ -6,7 +6,7 @@ File: `plans/NEW-jobwright/part-1/progress-slice-0-ci.md`, committed on its own 
 then with the slice; the compliance reviewer and the slice runner read it.
 
 ```text
-STATUS      doing
+STATUS      stopped: steps 0 to 5 done; the dev ports move (E1) needs plan v4 and bundle slice-0-ci v4 before step 6
 MODE        hands-on
 ```
 
@@ -76,7 +76,7 @@ MODE        hands-on
       actionlint_1.7.12_checksums.txt (its GitHub release). Local: `actionlint -shellcheck= -pyflakes=` exit 0; the
       SHA rule passes 24 uses: lines and catches `actions/checkout@v7` in a scratch file; `git grep -n "secrets\."
       .github` finds nothing. CHECKPOINT 4: Prashant Sharma reads the permissions and every uses: line
-- [ ] 5 Draft pull request https://github.com/prashantsharma18/jobwright-app/pull/1 (opened by Prashant Sharma, who
+- [x] 5 Draft pull request https://github.com/prashantsharma18/jobwright-app/pull/1 (opened by Prashant Sharma, who
       pushes every commit). Runs, each gate's failing line from its log:
       - first run https://github.com/prashantsharma18/jobwright-app/actions/runs/42964529734 (b084658): lint red, a real fault, fixed (E12)
       - green https://github.com/prashantsharma18/jobwright-app/actions/runs/42965610747 (84e5644): all six green; 1:44 wall clock, 5:48 job time (U15)
@@ -89,8 +89,10 @@ MODE        hands-on
         projects, "rule": "color-contrast"), 4 passed (the skeleton test); budget "AC26 script bytes: 135165 in 5
         responses (budget 1) ... Expected: <= 1 Received: 135165"
       - revert 9e6c1dc: the tree outside plans/ is identical to 1b0aca9 (`git diff --stat 1b0aca9 HEAD -- .
-        ':!plans'` empty); its run: to be recorded (all six green expected)
-- [ ] 6 Every AGENTS.md command run locally, counts read; boundary check and self-review (aidlc-build steps 8, 9);
+        ':!plans'` empty); https://github.com/prashantsharma18/jobwright-app/actions/runs/42967216637 (9b5f3f9): all six green (setup 0:35, test 0:42, lint 0:43, budget 1:10,
+        browser 1:14, build 1:52)
+      Step 5 DONE: each of the six gates seen green, red for its own reason, green again (AC27, part)
+- [ ] 6 BLOCKED until bundle v4 (E1): every AGENTS.md command run locally, counts read; boundary check and self-review (aidlc-build steps 8, 9);
       report; index row; this note and the index committed together
 
 ## Skills loaded
