@@ -84,7 +84,7 @@ SCANS      dependency, secrets, SAST                        not run (4)         
    was written (356ecb2), because the modules hold no types until part 3 and ArchUnitNET refuses a rule that matches
    none. The test's first assertion (every module loaded) guards against a vacuous pass, and both failure cases were
    seen red (a temporary Tenancy -> Identity type; a dropped Contracts reference). It does loosen what the rule
-   checks; see For the approver.
+   checks: approved as an exception by Prashant Sharma, 2026-11-11, expiring in part 3 (see For the approver).
 4. Slice 0 has no scan gate: gitleaks, trivy and syft are part 3 (bundle NOT INCLUDED). Done instead: before the
    repository went public, a `git log --all -p` scan found no token, key or password (E11, progress-slice-0-ci.md);
    the pnpm audit findings stay deferred to part 3's trivy (carried assumption).
@@ -108,6 +108,10 @@ SCANS      dependency, secrets, SAST                        not run (4)         
   owner or expiry. Either approve it in the pull request with an owner and an expiry (for example: part 3, when the
   first module gets a type, removes `.WithoutRequiringPositiveResults()`), or rule that it is not an exception because
   the test was new on this branch and the vacuity guard moved to the first assertion. Either way, record it.
+  DECIDED by Prashant Sharma, 2026-11-11: approved as an exception. Reason: increment 1's modules hold no types
+  until part 3, and ArchUnitNET refuses a rule that matches none. Owner: Prashant Sharma. Expiry: part 3, when the
+  first module gets a type, removes `.WithoutRequiringPositiveResults()`. Recorded at his instruction; his approval
+  in the pull request is his own comment on #1
 - **The scaffold review was delegated.** You asked Claude to review recipe commit 06a65b0 and take decisions R1 to R9
   on your behalf (progress-slice-0-scaffold.md). You have not read that generated diff yourself, so your review of
   this pull request is the human check of it.
