@@ -153,6 +153,9 @@ Command: `docker buildx imagetools inspect <tag>` (Docker 29.4.2), 2026-11-11; t
 - E10 (step 5) The drill takes three runs, not plan C7's two: every gate job repeats the setup install, so a lock
   mismatch fails all six at the install and hides the other five reasons. Drill 1 breaks setup only (a lock
   mismatch); drill 2 breaks lint, test, build, browser and budget, each for its own reason; then one revert.
+  Drill 1 is web/package.json vitest 5.1.0 -> 5.1.1 without the lock: on a clean worktree `pnpm install
+  --frozen-lockfile` exits 1 with "ERR_PNPM_OUTDATED_LOCKFILE ... vitest (lockfile: 5.1.0, manifest: 5.1.1)".
+  Every job runs that install, so all six go red at it; setup's red is the one this drill proves
   Confirmed by Prashant Sharma with checkpoint 4
 - E11 (step 5) DECIDED by Prashant Sharma, 2026-11-11: github.com/prashantsharma18/jobwright-app is PUBLIC. Before
   the push: no token, key or password in any commit of main or the branch (`git log --all -p` scan); the only
@@ -170,7 +173,9 @@ Command: `docker buildx imagetools inspect <tag>` (Docker 29.4.2), 2026-11-11; t
   (same TS2304). Fix: web/package.json `typecheck` is `next typegen && tsc --noEmit`, the documented way to type-check
   without a build (FACT, nextjs.org/docs/app/api-reference/cli/next, "next typegen", added v15.5.0). On the clean
   worktree: typecheck exit 0, then the whole `scripts/check.sh lint` exit 0 (eslint, prettier, typegen and tsc, dotnet
-  format, which CI never reached). Not a drill: the gate caught a real fault
+  format, which CI never reached). Not a drill: the gate caught a real fault. Second run, 42965610747 on 84e5644:
+  all six green (setup 0:35, lint 0:40, test 0:44, budget 0:59, browser 1:08, build 1:42; 1:44 wall clock, 5:48
+  job time in all, the U15 figure; no Actions minutes billed on a public repository, E11)
 - E5 (step 2) "10 KB" is read as 10,240 bytes; with 10,000 the budget would be 170,000. Confirmed by Prashant
   Sharma at checkpoint 2
 
