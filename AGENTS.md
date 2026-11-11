@@ -30,8 +30,8 @@ Every pinned version: `../stories/NEW-jobwright/new-system.md`, **Pinned version
   Sharma authors and merges; GitHub Free enforces nothing (KL1, KL2).
 
 ## Map
-No code yet: `docs/codebase-map.md` is written by `aidlc-onboard (confirm)` after slice 0. Until then, the planned
-layout (ADR 0001, `new-system.md` PATHS):
+Full map: `docs/codebase-map.md`. Read it before planning a change. The layout (ADR 0001, `new-system.md` PATHS);
+`api/contract/`, `charts/` and `docs/adr/` are planned and do not exist yet:
 - `web/`  Next.js app, the back end for the front end: sign-in, session, calls the API for the user
 - `api/`  .NET solution: `src/Jobwright.Api`, `src/Jobwright.Worker`, `src/Jobwright.Admin`,
   `src/Jobwright.SharedKernel`, `src/Modules/<Module>` and `<Module>.Contracts`, `tests/`
@@ -41,22 +41,30 @@ layout (ADR 0001, `new-system.md` PATHS):
 
 ## Commands
 <!-- On route G, a command written before slice 0 reads `(not yet run)` until `aidlc-onboard` confirms it. -->
-- Tests and lint, must pass before you report done: `scripts/check.sh lint && scripts/check.sh test` (not yet run)
-- Build (web, API and the three images): `scripts/check.sh build` (not yet run)
-- Run locally (PostgreSQL on 127.0.0.1:15432, Keycloak on 127.0.0.1:18080, then API and web; refuses while the k3d
-  cluster runs): `scripts/dev.sh` (not yet run)
+From the repository root, with the pinned toolchain first on PATH (the default shell has neither):
+`export PATH=~/.local/opt/node-v26.13.0/bin:~/.local/opt/dotnet-10.0.403:$PATH DOTNET_ROOT=~/.local/opt/dotnet-10.0.403`
+- Tests and lint, must pass before you report done: `scripts/check.sh lint && scripts/check.sh test`
+- Build (web, API and the three images): `scripts/check.sh build`
+- Browser tests (page check, AC12 axe scan) and the AC26 budget: `scripts/check.sh browser`, `scripts/check.sh budget`.
+  The host has no Playwright browser: locally, run each inside the pinned image (`<command>` in `bash -c`, because
+  pnpm's launcher has no shebang line):
+  `docker run --rm --ipc=host --user "$(id -u):$(id -g)" -e HOME=/tmp -e PNPM_CONFIG_VERIFY_DEPS_BEFORE_RUN=false -v "$PWD:/repo" -v "$HOME/.local/opt/node-v26.13.0:/opt/node:ro" -w /repo -e PATH=/opt/node/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin mcr.microsoft.com/playwright:v1.65.0-noble@sha256:6e3fb709361521eb27161606e6da6d2674e5e89fa16516cb37d6fdd91372273d bash -c "<command>"`
+- Run locally (PostgreSQL on 127.0.0.1:15432, Keycloak on 127.0.0.1:18080, then the API on 15080 and web on 15300;
+  refuses while the k3d cluster runs): `scripts/dev.sh`; Ctrl+C (or SIGTERM) stops it and removes its containers and
+  credentials
 - Recipe check, after a recipe commit: `python3 scripts/check_recipe_commit.py <commit> --recipe "<approved command>" --count "<test count command>"`
 - Slice runner, for approved delegate slices only, one fresh session each: `python3 scripts/run_slices.py <KEY> <slice> [<slice> ...] [--part <n>]`;
-  it stops at the first slice that does not end done, and never pushes
-- One web unit test file: `pnpm -C web exec vitest run <path>` (not yet run)
-- One .NET test project: `dotnet test --project api/tests/<Project>` (not yet run)
-- One browser test file: `pnpm -C web exec playwright test <path>` (not yet run)
+  it stops at the first slice that does not end done, and never pushes (not yet run: no delegate slice so far)
+- One web unit test file: `pnpm -C web exec vitest run <path>` (path from `web/`, e.g. `src/lib/utils.test.ts`)
+- One .NET test project: `dotnet test --project api/tests/<Project>`
+- One browser test file: `pnpm -C web exec playwright test <path>` (path from `web/`), inside the image above; it
+  does not build, so run `scripts/check.sh browser` first or it tests the last build
 
 ## Legacy
 - none: a new system
 
 ## Standards
-Pattern to follow for each: named by `aidlc-onboard (confirm)` from slice 0's code.
+Pattern to follow: named where slice 0 has one; the part 3 slice that first applies a standard names its pattern here.
 - Contract first: change `api/contract/openapi.yaml` and its failing tests before any API code. The web app calls the
   API only through the types `openapi-typescript` generates and `openapi-fetch`, never a hand-written request
   (ADR 0004).
@@ -70,7 +78,7 @@ Pattern to follow for each: named by `aidlc-onboard (confirm)` from slice 0's co
 - Tokens are never readable by page scripts; every route sends the security headers (ADR 0002, ADR 0010; AC14, AC15).
 - Workflows: every `uses:` pinned to a 40-character SHA with a `# vX.Y.Z` comment, no absolute-URL `uses:`; every
   workflow starts with `permissions: contents: read`; pull-request jobs get no secrets; only the main-branch run reads
-  `STAGING_TOKEN` (ADR 0011).
+  `STAGING_TOKEN` (ADR 0011). Pattern to follow: `.github/workflows/ci.yml`
 - Images: built once on `main`, tested by digest, pushed to ghcr.io with `sha-<commit>`, then staging is committed,
   never backwards (Released versions v2, ADR 0012).
 
@@ -80,10 +88,12 @@ Pattern to follow for each: named by `aidlc-onboard (confirm)` from slice 0's co
   a reason, an owner and an expiry date (next to the code for a suppression, in the Quality bar section for a
   threshold), and a person approves it in the pull request; without all of these, or past its expiry date, it is
   a violation.
-- Enforced: accessibility: no WCAG 2.2 AA violation on any page, light and dark, at 360 and 1440 px, checked by the axe
-  scan in CI's browser stage (AC12; command written by slice 0, not yet run)
-- Enforced: size: the Overview's first-load JavaScript at most the budget the plan sets from the skeleton, checked by
-  the budget test in CI's budget stage (AC26; command written by slice 0, not yet run)
+- Enforced: accessibility: no WCAG 2.2 AA violation on any page, light and dark, at 360 and 1440 px, checked by
+  `scripts/check.sh browser` (CI's browser job; AC12). Dark is not exercised until part 3's theme sets `.dark`, and the
+  page list in `web/tests/e2e/accessibility.spec.ts` is kept by hand (review-record M1, M2)
+- Enforced: size: the Overview's first-load JavaScript at most 163,840 bytes compressed, set from the skeleton's
+  135,165 (plan E5), checked by `scripts/check.sh budget` (CI's budget job; AC26). Measured 135,165 bytes on
+  2026-11-11 at d612731
 - Measured, not yet enforced: coverage: first measured at the end of part 3, then no lower than that (ratchet)
 - Measured, not yet enforced: latency: the NFR-PERF-01 targets, first measured in increment 4
 
@@ -92,14 +102,15 @@ Pattern to follow for each: named by `aidlc-onboard (confirm)` from slice 0's co
   (`helm template` for chart tests is fine). A change reaches a cluster only through a merged Git change in
   jobwright-gitops. Never use the machine's default kubeconfig: it holds the owner's live work clusters
   (requirements 9.5).
-- Every script that calls `kubectl`, `helm` or `k3d` sources the local-cluster guard first (ADR 0001, AC22). (CI also
-  checks this.)
+- Every script that calls `kubectl`, `helm` or `k3d` sources the local-cluster guard first (ADR 0001, AC22). (No CI
+  check yet: no script here calls them; `scripts/dev.sh` only reads `docker ps` to refuse while k3d runs.)
 - A module references only `Jobwright.SharedKernel` and other modules' `*.Contracts`; its tables are its own (ADR 0001).
-  (CI also checks this: `tests/Jobwright.ArchitectureTests`.)
+  (CI also checks this: `tests/Jobwright.ArchitectureTests`; it checks nothing until a module has a type, D6.)
 - Every tenant-owned table has `tenant_id`, forced row-level security and a row in `RowLevelSecurityTests`; foreign keys
   and unique constraints include `tenant_id`; no `SECURITY DEFINER`, views use `security_invoker`, no runtime role has
-  `BYPASSRLS` (ADR 0003). (CI also checks this: the schema check.)
-- The API and the worker never get a route on the public gateway (ADR 0001). (CI also checks this: the chart test.)
+  `BYPASSRLS` (ADR 0003). (CI will check this: the schema check, planned for part 3.)
+- The API and the worker never get a route on the public gateway (ADR 0001). (CI will check this: the chart test,
+  planned with the chart.)
 - Bind every port to 127.0.0.1, never 3000, 3001, 4318, 4444, 9090 or 9091: the owner's lab holds them
   (requirements 9.5).
 - Agents never push; Prashant Sharma pushes (spec v2, A2). Commit as
@@ -123,8 +134,9 @@ Pattern to follow for each: named by `aidlc-onboard (confirm)` from slice 0's co
   requirements 9.5).
 
 ## Where to look
-- Decisions: `docs/adr/` (ADRs 0001 to 0010, accepted 2026-11-09; until they are added here, read
+- Decisions: `docs/adr/` (ADRs 0001 to 0013, accepted 2026-11-09; until they are added here, read
   `../stories/NEW-jobwright/adr-draft-<n>.md`)
+- A new decision: through `aidlc-design` at the workspace root, which writes it in `../stories/<KEY>/`
 - Requirements: `../docs/requirements/2026-11-08-jobwright-requirements.md`
 - Spec and design: `../stories/NEW-jobwright/`
 - Owners: `CODEOWNERS` (repository root, GitHub's format; not enforced on Free, KL1)
