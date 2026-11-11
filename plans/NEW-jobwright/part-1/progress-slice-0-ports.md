@@ -6,7 +6,7 @@ File: `plans/NEW-jobwright/part-1/progress-slice-0-ports.md`, committed on its o
 with the slice; the compliance reviewer and the slice runner read it.
 
 ```text
-STATUS      paused: recipe review
+STATUS      done
 MODE        hands-on
 ```
 
@@ -14,7 +14,8 @@ MODE        hands-on
 - Not applicable: hands-on. The restatement was given in the session and confirmed by Prashant Sharma, 2026-11-11.
 
 ## Pauses confirmed (by the person)
-- (none yet)
+- recipe review confirmed by Prashant Sharma, 2026-11-11 — he reviewed 366edc2 (the 14 lines, test_dev.sh:92
+  and :105 by eye) and approved it; the commit message is kept as it is (not amended)
 
 ## Session plan
 - [x] 0 Restate goal, recipe, MAY CHANGE and STOP IF; wait for confirmation — check: confirmed by Prashant Sharma,
@@ -52,8 +53,8 @@ MODE        hands-on
       MAY CHANGE files and this note only; nothing on MUST NOT; `.claude/settings.json` never staged. Mutation
       (reviewing-code step 3): dev.sh `postgres_port` back to 55432 in place -> `test_dev.sh: 2 passed, 1 failed`
       (the taken-port test), file restored from a copy, 3 passed again
-- [ ] 4 CHECKPOINT: STATUS `paused: recipe review`; Prashant Sharma reviews recipe commit 366edc2 (14 lines, each
-      only a port number); then slice-0-ci resumes at its step 6
+- [x] 4 CHECKPOINT: STATUS `paused: recipe review`; Prashant Sharma reviews recipe commit 366edc2 (14 lines, each
+      only a port number) — check: approved by Prashant Sharma, 2026-11-11; then slice-0-ci resumes at its step 6
 
 ## Skills loaded
 - aidlc:committing-changes — plugin version 5.0.0
@@ -69,7 +70,7 @@ MODE        hands-on
 - `Recipe: sed@4.9` sits in the message's last body paragraph, followed by a blank line and the Co-Authored-By and
   hook trailers, so `git log --format=%(trailers)` does not show it (scaffold commit 06a65b0 has its Recipe lines in
   the trailer block). check_recipe_commit.py accepts it (it searches the whole message). Not amended: amending is a
-  history rewrite, a person's decision — confirm with Prashant Sharma at the recipe review (keep, or he amends)
+  history rewrite, a person's decision — kept as it is: Prashant Sharma approved the commit, 2026-11-11
 - Not covered by a local test: dev.sh's api_port and web_port against launchSettings.json and web/package.json; only
   `git grep` (X7) checks them until slice-0-ci step 6 runs dev.sh for real — for the reviewer
 
