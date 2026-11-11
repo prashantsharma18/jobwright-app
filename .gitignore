@@ -10,3 +10,10 @@ node_modules/
 .pnpm-store/
 # Environment files hold local secrets
 .env*
+# Personal settings: Claude Code local settings, editors, operating systems
+.claude/settings.local.json
+.vscode/
+.idea/
+*.user
+.DS_Store
+Thumbs.db
