@@ -6,7 +6,7 @@ File: `plans/NEW-jobwright/part-1/progress-slice-0-ci.md`, committed on its own 
 then with the slice; the compliance reviewer and the slice runner read it.
 
 ```text
-STATUS      paused: checkpoint 4 (the workflow's permissions and every uses: line, before ci.yml is committed)
+STATUS      doing
 MODE        hands-on
 ```
 
@@ -15,6 +15,8 @@ MODE        hands-on
   with its ten flagged points (see Assumptions)
 
 ## Pauses confirmed (by the person)
+- checkpoint 4 confirmed by Prashant Sharma, 2026-11-11 (recorded at his instruction: "do these part A steps for
+  me"; with it, the drill takes three runs, E10)
 - checkpoint 2 confirmed by Prashant Sharma, 2026-11-11 (recorded at his instruction; with it, E5: "10 KB" is
   10,240 bytes, so the budget is 163,840)
 
@@ -67,14 +69,16 @@ MODE        hands-on
       with "output: standalone" configuration. Use "node .next/standalone/server.js" instead.', so Playwright's
       webServer now copies .next/static and runs server.js (restatement point 5); browser 8 passed, budget 1 passed at
       the same 135,165 bytes, no warning. Lint and test exit 0 after the step
-- [ ] 4 CI — .github/workflows/ci.yml written, NOT COMMITTED (checkpoint 4). Every action SHA matches its tag
+- [x] 4 CI — .github/workflows/ci.yml, committed after checkpoint 4. Every action SHA matches its tag
       (`git ls-remote`, annotated tags peeled): checkout v7.0.1, setup-node v7.1.0, pnpm/action-setup v6.1.1,
       setup-dotnet v6.1.0, upload-artifact v7.0.2 (and cache v6.1.0, not used). Inputs read from each action.yml at
       its SHA. actionlint 1.7.12 sha256 8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8 from
       actionlint_1.7.12_checksums.txt (its GitHub release). Local: `actionlint -shellcheck= -pyflakes=` exit 0; the
       SHA rule passes 24 uses: lines and catches `actions/checkout@v7` in a scratch file; `git grep -n "secrets\."
       .github` finds nothing. CHECKPOINT 4: Prashant Sharma reads the permissions and every uses: line
-- [ ] 5 Draft pull request (Prashant Sharma pushes): one drill commit breaking all six gates, then its revert; each
+- [ ] 5 Draft pull request (Prashant Sharma pushes). Description drafted: plans/NEW-jobwright/part-1/pr-body.md. No
+      git remote and no GitHub repository jobwright-app exist yet (`gh repo view prashantsharma18/jobwright-app`:
+      "Could not resolve"); he creates it and pushes: one drill commit breaking all six gates, then its revert; each
       gate's failing line and the run links recorded here; minutes of one full run (U15)
 - [ ] 6 Every AGENTS.md command run locally, counts read; boundary check and self-review (aidlc-build steps 8, 9);
       report; index row; this note and the index committed together
@@ -146,6 +150,10 @@ Command: `docker buildx imagetools inspect <tag>` (Docker 29.4.2), 2026-11-11; t
   setup-dotnet's LTS pre-pass is left at its default
 - E9 Root .gitignore gains `.pnpm-store/` (E2) and `.env*` (only web/ had it), asked for by Prashant Sharma
   (e1775f1); `git check-ignore -v --no-index` matches .pnpm-store/x, .env, .env.local and api/.env.development
+- E10 (step 5) The drill takes three runs, not plan C7's two: every gate job repeats the setup install, so a lock
+  mismatch fails all six at the install and hides the other five reasons. Drill 1 breaks setup only (a lock
+  mismatch); drill 2 breaks lint, test, build, browser and budget, each for its own reason; then one revert.
+  Confirmed by Prashant Sharma with checkpoint 4
 - E5 (step 2) "10 KB" is read as 10,240 bytes; with 10,000 the budget would be 170,000. Confirmed by Prashant
   Sharma at checkpoint 2
 
