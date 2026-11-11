@@ -19,8 +19,10 @@ case "${1:-}" in
       dotnet format api/Jobwright.slnx --verify-no-changes
     ;;
   build)
-    # The three docker builds join in slice-0-ci.
-    pnpm -C web build && dotnet build api/Jobwright.slnx -c Release
+    pnpm -C web build && dotnet build api/Jobwright.slnx -c Release &&
+      docker build -f Dockerfile.web -t jobwright-web:local . &&
+      docker build -f Dockerfile.api -t jobwright-api:local . &&
+      docker build -f Dockerfile.worker -t jobwright-worker:local .
     ;;
   browser)
     # The page check and the AC12 axe scan: 360 and 1440 px, light and dark.

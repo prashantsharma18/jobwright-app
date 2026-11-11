@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Dockerfile.web ships .next/standalone (server.js) and .next/static only
+  output: "standalone",
   turbopack: {
     rules: {
       "*.css": {

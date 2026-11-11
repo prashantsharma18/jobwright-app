@@ -1,0 +1,27 @@
+# The web app: Next.js standalone output on node 26.13.0, run as the image's non-root user `node`.
+# Build from the repository root: docker build -f Dockerfile.web .
+# Base digests: plans/NEW-jobwright/part-1/progress-slice-0-ci.md, "Image digests".
+
+FROM node:26.13.0@sha256:438603bbb5cda404b9416f0b5c8026f61501ab911760d861ec28c36b5d675725 AS build
+# Tool telemetry off (plan Q13)
+ENV NEXT_TELEMETRY_DISABLED=1
+# The image ships no corepack; pnpm at the version packageManager pins (new-system.md)
+RUN npm install --global pnpm@12.18.0
+WORKDIR /src/web
+COPY web/package.json web/pnpm-lock.yaml web/pnpm-workspace.yaml ./
+RUN pnpm install --frozen-lockfile
+COPY web/ ./
+# next/font/google downloads the fonts here, at build time (slice-0-skeleton D5, D9)
+RUN pnpm build
+
+FROM node:26.13.0@sha256:438603bbb5cda404b9416f0b5c8026f61501ab911760d861ec28c36b5d675725
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    PORT=8080 \
+    HOSTNAME=0.0.0.0
+WORKDIR /app
+COPY --from=build --chown=node:node /src/web/.next/standalone ./
+COPY --from=build --chown=node:node /src/web/.next/static ./.next/static
+USER node
+EXPOSE 8080
+CMD ["node", "server.js"]
