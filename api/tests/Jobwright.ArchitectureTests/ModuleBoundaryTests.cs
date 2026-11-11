@@ -38,9 +38,12 @@ public class ModuleBoundaryTests
         {
             var forbidden = JobwrightAssemblies.Where(other => other != module && !IsAllowedTarget(other)).ToArray();
 
+            // Increment 1's modules hold no types until part 3, and ArchUnitNET by default refuses a rule that matches
+            // no type. The assertion above, that every module was loaded, is this test's guard against a vacuous pass.
             Types().That().ResideInAssembly(module).Should()
                 .NotDependOnAny(Types().That().ResideInAssembly(forbidden[0], forbidden[1..]))
                 .Because("a module references only Jobwright.SharedKernel and other modules' *.Contracts (ADR 0001)")
+                .WithoutRequiringPositiveResults()
                 .Check(architecture);
         }
     }
