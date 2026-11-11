@@ -18,7 +18,8 @@ GOAL        Move the four dev ports below Windows' dynamic range (plan K4 v4, E1
             58080 -> 18080, API 55080 -> 15080, web 55300 -> 15300. No criterion is proved here; slice-0-ci step 6
             runs dev.sh for real on the new ports.
 INTENT      spec v3 (approved 2026-11-09); clarification K4 in plan.md (v4: decided by Prashant Sharma, 2026-11-11,
-            E1 in progress-slice-0-ci.md); plan v4 (2026-11-11), awaiting approval
+            E1 in progress-slice-0-ci.md); plan v4 (2026-11-11), approved by Prashant Sharma, 2026-11-11
+            (commit 6936a41; recorded at his instruction), with this bundle v1 and its recipe tool
 PINS        spec v3 · plan v4 · contract none
 TIER        3 (plan.md)
 MODE        hands-on   (Tier 3 allows only hands-on; a RECIPE stops for review in every mode)

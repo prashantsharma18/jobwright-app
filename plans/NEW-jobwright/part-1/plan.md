@@ -221,8 +221,8 @@ RISKS      R-a A generator adds an unlisted package (expected: @types/react-dom 
                18080 shows as Docker's refused publish, which names the port, exits non-zero and leaves no container
                (E1's run: exit 125, cleanup clean). INFERENCE: for the API and web ports, Windows matters only to WSL's
                localhost forwarding to a Windows browser. slice-0-ports step 0 and slice-0-ci step 6 check the four
-               with netsh (exclusions and the dynamic range's start) and netstat before the real run. Residual risk, for
-               acceptance by Prashant Sharma with plan v4 (X4, X5): an administered exclusion, a later Windows change to the dynamic
+               with netsh (exclusions and the dynamic range's start) and netstat before the real run. Residual risk,
+               accepted by Prashant Sharma with plan v4 (X4, X5): an administered exclusion, a later Windows change to the dynamic
                range, or another program on the owner's machine could take a dev port; dev.sh's check does not see
                the Windows side
 
@@ -443,6 +443,10 @@ APPROVAL   plan.md v1 (commit a522963, with Q1 and Q8 as recorded in the commit 
            Q11 and Q13 decided by him; Q12 open and blocking slice-0-skeleton until new-system.md v5 is approved.
            The bundles slice-0-skeleton v3 and slice-0-ci v3 (commit 02a2cfb) approved by him, 2026-11-11;
            recorded at his instruction
+           plan.md v4 (commit 6936a41) approved by Prashant Sharma (tech lead), 2026-11-11; recorded at his
+           instruction. Conditions: "Challenged (v4)" answered; X4's and X5's residual risk (R-j) accepted by him;
+           Q14 open, blocking the pull request leaving draft. The bundles slice-0-ports v1 (with its recipe tool,
+           GNU sed 4.9) and slice-0-ci v4 (commit 6936a41) approved by him, 2026-11-11; recorded at his instruction
 ```
 
 ## Hidden decisions flagged for their owner
@@ -574,14 +578,14 @@ checked again by this session.
 | X1 | AGENTS.md's AMENDED ASSERTIONS exception needs "the approved spec amendment"; K4 is a plan clarification, so citing it would let any plan revision rewrite tests | blocker | FACT, confirmed (AGENTS.md "Boundaries", the assertion rule). Change (Prashant Sharma, 2026-11-11): the move is a recipe commit in its own slice, slice-0-ports (sed 4.9), checked by scripts/check_recipe_commit.py with test_dev.sh's count 3 before and after; AMENDED ASSERTIONS stays none. Dry run in a scratch copy: 14 lines changed, count 3, the test reads `fails naming the port when 15432 is taken` |
 | X2 | The build step breaks its own bundle: slice-0-ci's MUST NOT names the old ports, and its steps 1 and 3 too | blocker | Evidence: slice-0-ci v4 changes MUST NOT's list to the new ports and notes that steps 1 to 3 name the ports as they were then (steps done, kept as the record) |
 | X3 | Q14 blocking only the pull request leaving draft is weaker than Q10 and Q12, which blocked the build; a fresh session reading new-system.md v5 and AGENTS.md line 46 may "fix" the ports back | serious | Prashant Sharma kept Q14 blocking only the pull request leaving draft (2026-11-11). Change: his AGENTS.md line 46 commit comes before slice-0-ports' recipe commit (its step 0 stops without it), so only new-system.md lags, and Q14 and the pull request name it |
-| X4 | The root cause is overstated: WSL is in NAT mode, so the API and web bind inside the VM, and dev.sh's free-port check cannot see a Windows-side exclusion or process; 15432 and 18080 are common alternative ports | serious | FACT, confirmed (`wslinfo --networking-mode`: nat). Change: R-j says so; both bundles check the four with netsh and netstat on Windows before the recipe and before the real run. Evidence: Docker's refusal names the port and dev.sh's cleanup leaves no container (E1). Risk for acceptance by Prashant Sharma, with plan v4: dev.sh itself does not check the Windows side |
-| X5 | Windows can reset the dynamic range to start lower, putting 15xxx and 18080 inside it again | serious | Change: both checks read `netsh interface ipv4 show dynamicport protocol=tcp` and stop if it no longer starts at 49152. Residual risk in R-j, for acceptance by Prashant Sharma |
+| X4 | The root cause is overstated: WSL is in NAT mode, so the API and web bind inside the VM, and dev.sh's free-port check cannot see a Windows-side exclusion or process; 15432 and 18080 are common alternative ports | serious | FACT, confirmed (`wslinfo --networking-mode`: nat). Change: R-j says so; both bundles check the four with netsh and netstat on Windows before the recipe and before the real run. Evidence: Docker's refusal names the port and dev.sh's cleanup leaves no container (E1). Accepted risk, Prashant Sharma, with plan v4: dev.sh itself does not check the Windows side |
+| X5 | Windows can reset the dynamic range to start lower, putting 15xxx and 18080 inside it again | serious | Change: both checks read `netsh interface ipv4 show dynamicport protocol=tcp` and stop if it no longer starts at 49152. Residual risk in R-j, accepted by Prashant Sharma with plan v4 |
 | X6 | playwright.config.ts drives CI's browser and budget jobs, so the drills' green no longer covers the new config | serious | Change: slice-0-ports step 3 runs browser and budget locally after the recipe; slice-0-ci step 6 and DONE WHEN require CI's six gates green on the pull request's new last run. The drills proved each gate can go red; the port does not change that |
 | X7 | Half-migration is easy: old numbers also sit in the plan, the bundles, new-system.md and AGENTS.md, and a stale launchSettings.json or .http fails quietly | minor | Change: slice-0-ports step 3 and both DONE WHEN lines require `git grep` to find no old port outside plans/; the plan and bundles keep old numbers only as history (V6, steps 1 to 3); new-system.md is Q14 |
 | X8 | Rollback is cheap only before part 3 bakes the ports into Keycloak redirect URIs; the old ports cannot come back on this machine | minor | Change: ROLLBACK (v4) says both. Evidence: nothing in jobwright-gitops or charts/ uses these ports (reviewer's check; E1) |
 | X9 | Adding the Chromium revision to Q3, a closed question, in a port revision muddles the record | minor | Kept: Prashant Sharma asked for it in Q3 (2026-11-11). It is marked (v4) and changes no decision: Q3 stays closed |
 
-Risks for acceptance: X4's and X5's residual risk (R-j), by Prashant Sharma with plan v4; none accepted yet.
+Risks accepted: X4's and X5's residual risk (R-j), by Prashant Sharma with plan v4 (2026-11-11).
 
 Simplest alternative considered: the reviewer's own, the same edit as a recipe commit checked by
 check_recipe_commit.py. Taken (X1). Freeing the old ports instead is in REJECTED.

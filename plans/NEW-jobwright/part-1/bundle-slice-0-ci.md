@@ -29,7 +29,8 @@ GOAL        Add the three Dockerfiles, scripts/dev.sh with its refusal test, the
             AGENTS.md command runs green locally and CI reports each gate on the draft pull request (AC27, part),
             each seen red once.
 INTENT      spec v3 (approved 2026-11-09); clarifications K1 to K4 in plan.md; plan v4 (2026-11-11: K4 the dev ports,
-            E1; Q3 the Playwright browser; Q14 new-system.md v6), awaiting approval; plan v3 approved by Prashant
+            E1; Q3 the Playwright browser; Q14 new-system.md v6), approved by Prashant Sharma, 2026-11-11 (commit
+            6936a41; recorded at his instruction), with this bundle v4; plan v3 approved by Prashant
             Sharma, 2026-11-11 (commit 02a2cfb; recorded at his instruction)
 PINS        spec v3 · plan v4 · contract none
 TIER        3 (plan.md)
