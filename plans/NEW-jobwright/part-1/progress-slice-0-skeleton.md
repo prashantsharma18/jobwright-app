@@ -7,7 +7,8 @@ then with the slice; the compliance reviewer and the slice runner read it.
 
 ```text
 STATUS      stopped: the sandbox refuses Unix sockets, so `dotnet test` and `dotnet format` (check.sh test and lint)
-            cannot run here; every other step is done and committed
+            cannot run here; every other step is done and committed. Second session (2026-11-11): unchanged, the
+            unsandboxed run refused by the auto-mode classifier; a person runs the full check.sh, or allows it
 MODE        hands-on
 ```
 
@@ -61,6 +62,12 @@ MODE        hands-on
       solution like `--solution`. NOT RUN HERE: `scripts/check.sh test` and `lint` (dotnet test and dotnet format die on
       "SocketException (13): Permission denied") and `scripts/check.sh build` (next build needs fonts.googleapis.com,
       D5; dotnet build needs parallel nodes). Open: the full run
+      Second session, 2026-11-11: AF_UNIX still refused ("Operation not permitted"); `scripts/check.sh lint` red in
+      the sandbox only at `dotnet format` ("Restore operation failed"), web lint, format:check and typecheck green;
+      the unsandboxed run was refused again by the auto-mode classifier. Re-verified in the sandbox, no code changed:
+      web test 1 file, 2 passed; `dotnet build -m:1` 0 warnings, 0 errors; Api.Tests and ArchitectureTests each
+      Total 1, Failed 0, Skipped 0; `pnpm -C web build` exit 0 (fonts hosts allowed, D5); Release build 0 warnings,
+      0 errors. Step 9's checks repeated, all clean
 - [ ] 9 Boundary check done early: `git diff --name-only b94004d HEAD` has nothing outside MAY CHANGE and nothing in
       MUST NOT; DONE WHEN greps (placeholders with ':!plans', net8.0/TestingPlatformDotnetTestSupport, ports, 3000) find
       nothing; test projects reference only xunit.v3.mtp-v2 of xunit's packages; no suppression or skip; check.sh exports
