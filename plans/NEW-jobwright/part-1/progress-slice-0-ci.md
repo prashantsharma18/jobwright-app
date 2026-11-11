@@ -76,10 +76,20 @@ MODE        hands-on
       actionlint_1.7.12_checksums.txt (its GitHub release). Local: `actionlint -shellcheck= -pyflakes=` exit 0; the
       SHA rule passes 24 uses: lines and catches `actions/checkout@v7` in a scratch file; `git grep -n "secrets\."
       .github` finds nothing. CHECKPOINT 4: Prashant Sharma reads the permissions and every uses: line
-- [ ] 5 Draft pull request (Prashant Sharma pushes). Description drafted: plans/NEW-jobwright/part-1/pr-body.md. No
-      git remote and no GitHub repository jobwright-app exist yet (`gh repo view prashantsharma18/jobwright-app`:
-      "Could not resolve"); he creates it and pushes: one drill commit breaking all six gates, then its revert; each
-      gate's failing line and the run links recorded here; minutes of one full run (U15)
+- [ ] 5 Draft pull request https://github.com/prashantsharma18/jobwright-app/pull/1 (opened by Prashant Sharma, who
+      pushes every commit). Runs, each gate's failing line from its log:
+      - first run https://github.com/prashantsharma18/jobwright-app/actions/runs/42964529734 (b084658): lint red, a real fault, fixed (E12)
+      - green https://github.com/prashantsharma18/jobwright-app/actions/runs/42965610747 (84e5644): all six green; 1:44 wall clock, 5:48 job time (U15)
+      - DRILL 1 https://github.com/prashantsharma18/jobwright-app/actions/runs/42966349758 (96f71d6, vitest 5.1.1 without the lock): all six red at `pnpm -C web install
+        --frozen-lockfile`; setup: "Error: ERR_PNPM_OUTDATED_LOCKFILE ... - vitest (lockfile: 5.1.0, manifest: 5.1.1)"
+      - DRILL 2 https://github.com/prashantsharma18/jobwright-app/actions/runs/42966685123 (5a1a690, after the revert 1ccc75c): setup green; lint "[warn] next.config.ts ... Code
+        style issues found in the above file"; test "failed Jobwright.Api.Tests.HealthLiveTests.HealthLive_answers_200_
+        without_authentication ... Assert.Equal() Failure: Values differ Expected: OK Actual: NotFound"; build "COPY
+        api/drill-missing.props api/ ... "/api/drill-missing.props": not found"; browser 4 failed (AC12 in all four
+        projects, "rule": "color-contrast"), 4 passed (the skeleton test); budget "AC26 script bytes: 135165 in 5
+        responses (budget 1) ... Expected: <= 1 Received: 135165"
+      - revert 9e6c1dc: the tree outside plans/ is identical to 1b0aca9 (`git diff --stat 1b0aca9 HEAD -- .
+        ':!plans'` empty); its run: to be recorded (all six green expected)
 - [ ] 6 Every AGENTS.md command run locally, counts read; boundary check and self-review (aidlc-build steps 8, 9);
       report; index row; this note and the index committed together
 
