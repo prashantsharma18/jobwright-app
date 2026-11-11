@@ -6,7 +6,7 @@ File: `plans/NEW-jobwright/part-1/progress-slice-0-ci.md`, committed on its own 
 then with the slice; the compliance reviewer and the slice runner read it.
 
 ```text
-STATUS      doing
+STATUS      paused: checkpoint 2 (screenshots, measured bytes and the budget, before the budget is committed)
 MODE        hands-on
 ```
 
@@ -22,15 +22,39 @@ MODE        hands-on
       .NET total 2, failed 0, skipped 0). Docker answers (server 29.4.2); no container named k3d-* or labelled
       app=k3d; 55432, 58080, 55080, 55300 free; actionlint 1.7.12 in ~/.local/bin. Restatement confirmed. This note
       committed on its own
-- [ ] 1 dev.sh, tests first — files: scripts/tests/test_dev.sh, scripts/dev.sh, scripts/check.sh — check:
-      test_dev.sh red (dev.sh missing), then green; refuses k3d by name and by label, refuses a silent docker,
-      names 55432 when taken; no container started in any refusal case; `scripts/check.sh test` runs it
+- [x] 1 dev.sh, tests first (babae09) — scripts/tests/test_dev.sh red against a dev.sh with no refusals, for the
+      expected reasons (k3d: "exit status: 0", calls "docker run ...;dotnet run ..."; silent docker: "calls: docker run
+      ..."; port: "exit status: 0"); then green: "test_dev.sh: 3 passed, 0 failed". `scripts/check.sh test` exit 0
+      (web 2 passed; .NET total 2, failed 0, skipped 0; dev.sh 3 passed). FACT k3d v5.9.0 pkg/types/defaults.go:
+      DefaultRuntimeLabels {"app": "k3d"}, plus k3d.version; FACT keycloak.org/server/containers:
+      KC_BOOTSTRAP_ADMIN_USERNAME and KC_BOOTSTRAP_ADMIN_PASSWORD with start-dev.
+      Real run: OPEN, blocked by the machine (see Decisions, E1): Docker Desktop refused to publish 127.0.0.1:55432
+      ("ports are not available: exposing port TCP 127.0.0.1:55432 -> 127.0.0.1:0: /forwards/expose returned
+      unexpected status: 500"); dev.sh exited 125 and its cleanup left no container, no credentials, no port bound
 - [ ] 2 Browser harness, tests first — files: web/package.json, web/pnpm-lock.yaml, web/playwright.config.ts,
-      web/tests/e2e/{skeleton,accessibility,budget}.spec.ts, web/.gitignore, web/vitest.config.mts (exclude e2e if
-      needed), web/eslint.config.mjs or web/.prettierignore (only if the new files need it), scripts/check.sh —
-      check: the page already exists, so the skeleton test is proved able to fail by breaking the heading once
-      (not committed); axe red with a deliberate contrast fault, then green; budget measured three times (spread <= 5%),
-      red at 1 byte, then green. CHECKPOINT: four screenshots, measured bytes and the number
+      web/tests/e2e/{skeleton,accessibility,budget}.spec.ts, web/.gitignore, web/eslint.config.mjs, scripts/check.sh.
+      Done, NOT COMMITTED (the budget waits for the checkpoint):
+      - `pnpm -C web add -D -E @playwright/test@1.65.0 @axe-core/playwright@4.14.0`: the lock adds exactly five
+        packages: @playwright/test, playwright, playwright-core 1.65.0 (Microsoft's), @axe-core/playwright and
+        axe-core 4.14.0 (Deque's); no build script; the only other lock change is next's peer key naming
+        @playwright/test
+      - Playwright 1.65.0 wants Chromium revision 1254 (browsers.json); the cache holds 1247, so local browser runs
+        use the pinned image mcr.microsoft.com/playwright:v1.65.0-noble@sha256:6e3fb709...273d with the host's Node
+        26.13.0 mounted read-only (command under Assumptions); no browser installed
+      - skeleton and AC12 green at once (the page exists), then both red with one temporary edit of page.tsx, never
+        committed (heading "Jobright", class text-[#bbbbbb]): 8 failed; AC12: `"rule": "color-contrast"` on /;
+        skeleton: "expect(locator).toBeVisible() failed ... element(s) not found"; page.tsx restored, no diff
+      - AC26 red at a 1-byte budget: "Expected: <= 1  Received: 135165". Measured four times (one fresh build, three
+        on the same build): 135,165 bytes in 5 script responses each time, spread 0 % (STOP IF is > 5 %). Encoded:
+        `next start` serves the chunks with Content-Encoding: gzip (e.g. raw 229,283 -> 71,760). Budget (K3):
+        135,165 × 1.2 = 162,198 -> rounded up to 16 × 10,240 = 163,840 bytes (160 KB); green at it
+      - `scripts/check.sh browser` (in the image): 8 passed, 0 failed, 0 skipped; `scripts/check.sh budget`: 1 passed;
+        `scripts/check.sh lint` exit 0 after Prettier formatted two of the new files
+      - Screenshots (inspected): home page at 360 and 1440, light and dark: the heading "Jobwright" centred, black on
+        white, no overflow or clipping; dark identical to light (no theme until part 3); the heading renders in a serif
+        fallback, not Geist (see Decisions, E3); not-found page at 360 light: Next's default "404 | This page could not
+        be found."
+      CHECKPOINT 2: Prashant Sharma looks at the four screenshots, the measured bytes and the number
 - [ ] 3 Images — files: Dockerfile.web, Dockerfile.api, Dockerfile.worker, .dockerignore, web/next.config.ts,
       scripts/check.sh — check: digests resolved from the registries (command and output recorded); `scripts/check.sh
       build` exit 0; each image runs as non-root; web answers its home page, the API /health/live, the worker stays up
@@ -56,8 +80,36 @@ MODE        hands-on
 ## Amended assertions seen red
 - none (the bundle lists none)
 
+## Image digests (step 1 and step 3)
+Command: `docker buildx imagetools inspect <tag>` (Docker 29.4.2), 2026-11-11; the index digest (all platforms):
+- postgres:17.11 — sha256:ff87138949ad9a46f32ff23bd6852b52ce024a13dffe9b4087be98292cdd3b4f (OCI index)
+- quay.io/keycloak/keycloak:26.8.2 — sha256:723b1d6e254c0fc96d5cffec860c7e0744d6a3277822b865bb538cf891575e41
+- node:26.13.0 — sha256:438603bbb5cda404b9416f0b5c8026f61501ab911760d861ec28c36b5d675725
+- mcr.microsoft.com/dotnet/sdk:10.0.403 — sha256:212fe4cb74627d5adf9817a4088906ae3edff1bd853bb27565d4b46731efe61e
+- mcr.microsoft.com/dotnet/aspnet:10.0.14 — sha256:1a48394b6f29d3a32c79d9edecd4abda0ecbe8776d567dbfc4590ed6979c740c
+- mcr.microsoft.com/dotnet/runtime:10.0.14 — sha256:4f1f30cf0bb4ab0c8b2daa84613051683456f8df4a9bf7c812e20d74962992ac
+- mcr.microsoft.com/playwright:v1.65.0-noble — sha256:6e3fb709361521eb27161606e6da6d2674e5e89fa16516cb37d6fdd91372273d
+
 ## Decisions made while working (for the PR)
-- none yet
+- E1 (step 1, for Prashant Sharma) Windows holds three of the four approved ports. `netsh interface ipv4 show
+  excludedportrange protocol=tcp` lists dynamic (not administered) exclusions 55007-55106, 55268-55367 and
+  55368-55467, which hold 55080, 55300 and 55432; 58080 is free. Docker Desktop cannot publish a port in them, so
+  dev.sh's real run and step 3's image checks with a published port fail on this machine. The ports are K4's and
+  requirements 9.5's, so nothing in the repository changes. The owner frees them (an elevated
+  `net stop winnat` then `net start winnat` usually releases dynamic exclusions; a reboot may move them back), and the
+  real run is repeated at step 6. Until then dev.sh is proved by test_dev.sh only
+- E2 (step 2) Local browser runs set PNPM_CONFIG_VERIFY_DEPS_BEFORE_RUN=false in the container only. Without it,
+  pnpm's default `verifyDepsBeforeRun: install` (FACT, pnpm.io/settings/build) reinstalled all 596 packages into a
+  new store at the repository root (`.pnpm-store/`, 622 MB; the container's mounts are separate filesystems). Both
+  stray stores were deleted (untracked, created by this session) and the host's node_modules restored with
+  `pnpm -C web install --frozen-lockfile --offline` (storeDir again ~/.local/share/pnpm/store/v11). Not a repository
+  setting; CI installs inside its own container
+- E3 (step 2, for part 3) The home page's heading renders in a serif fallback: layout.tsx sets --font-geist-sans and
+  --font-geist-mono, but no class applies them. Not changed: no DO step names it, and fonts are requirements 9.3's
+  (part 3, D9). Listed in the pull request
+- E4 (step 2) The skeleton test also asserts that the page logs no console error (testing-in-browser), inside the
+  same test, so the counts stay as DONE WHEN gives them
+- E5 (step 2) "10 KB" is read as 10,240 bytes; with 10,000 the budget would be 170,000. Confirm at checkpoint 2
 
 ## Assumptions
 Confirmed by Prashant Sharma, 2026-11-11 (restatement):
@@ -83,6 +135,13 @@ Confirmed by Prashant Sharma, 2026-11-11 (restatement):
 - The pinned toolchain through `PATH=~/.local/opt/node-v26.13.0/bin:~/.local/opt/dotnet-10.0.403:$PATH` and
   `DOTNET_ROOT=~/.local/opt/dotnet-10.0.403`, as in slice-0-skeleton
 - `.claude/settings.json` (sandbox disabled, Prashant Sharma's change) is never staged; every commit stages by name
+- Local browser command (not in the repository): `docker run --rm --ipc=host --user "$(id -u):$(id -g)" -e HOME=/tmp
+  -e PNPM_CONFIG_VERIFY_DEPS_BEFORE_RUN=false -v "$PWD:/repo" -v "$HOME/.local/opt/node-v26.13.0:/opt/node:ro"
+  -w /repo -e PATH=/opt/node/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+  mcr.microsoft.com/playwright:v1.65.0-noble@sha256:6e3fb709...273d scripts/check.sh browser|budget`
 
 ## Context gaps noticed (B5)
 - wrong: bundle DONE WHEN says "dev.sh 2" while TESTS and DO 1 name three tests
+- gap: neither the plan nor requirements 9.5 says Windows' dynamic port exclusions (WinNAT) can hold the approved
+  dev ports on a WSL2 machine with Docker Desktop (E1)
+- gap: the plan's Q3 tool list has no Playwright browser; the cache held another revision (1247 for 1254)
