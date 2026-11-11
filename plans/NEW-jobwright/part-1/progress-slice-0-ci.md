@@ -6,7 +6,7 @@ File: `plans/NEW-jobwright/part-1/progress-slice-0-ci.md`, committed on its own 
 then with the slice; the compliance reviewer and the slice runner read it.
 
 ```text
-STATUS      doing   (step 6: local checks done; CI's run on pull request #1 waits for Prashant Sharma's push)
+STATUS      done
 MODE        hands-on
 ```
 
@@ -92,7 +92,7 @@ MODE        hands-on
         ':!plans'` empty); https://github.com/prashantsharma18/jobwright-app/actions/runs/42967216637 (9b5f3f9): all six green (setup 0:35, test 0:42, lint 0:43, budget 1:10,
         browser 1:14, build 1:52)
       Step 5 DONE: each of the six gates seen green, red for its own reason, green again (AC27, part)
-- [ ] 6 Resumed 2026-11-11 under bundle v4 (approved at 6936a41), restatement confirmed by Prashant Sharma; needs
+- [x] 6 Resumed 2026-11-11 under bundle v4 (approved at 6936a41), restatement confirmed by Prashant Sharma; needs
       met: slice-0-ports done, recipe commit 366edc2 reviewed and approved by him (progress-slice-0-ports.md, 466adb7);
       his AGENTS.md line 46 commit c54c922. Local part done at 466adb7, pinned toolchain on PATH:
       - [x] Ports: `netsh.exe interface ipv4 show dynamicport protocol=tcp` start 49152, 16384 ports; `show
@@ -129,8 +129,14 @@ MODE        hands-on
             eb0cece: lint and test exit 0 (web 2; .NET total 2, failed 0, skipped 0; test_dev.sh 3 passed, 0 failed);
             build exit 0 (0 Warning(s) 0 Error(s), the three images); browser 8 passed; budget 1 passed at
             135,165 bytes (budget 163,840); the tree clean apart from `.claude/settings.json`
-      - [ ] Prashant Sharma pushes; CI's six gates green on the pull request's new last run (link to be recorded);
-            then STATUS done, the slice 0 row, this note and the index committed together
+      - [x] Prashant Sharma pushed 9b5f3f9..9f05a3d; pull request #1's new last run
+            https://github.com/prashantsharma18/jobwright-app/actions/runs/42999475010 (9f05a3d, pull_request): all
+            six green (setup 0:34, test 0:50, lint 0:58, budget 1:06, browser 1:07, build 1:52; 1:55 wall clock).
+            Counts from its log: web Tests 2 passed (1 file); .NET total 2, failed 0, skipped 0; test_dev.sh 3
+            passed, 0 failed; browser 8 passed; budget 1 passed, "AC26 script bytes: 135165 in 5 responses (budget
+            163840)"; actionlint's archive "OK" against its checksum. STATUS done; the slice 0 row; this note and the
+            index committed together
+      Step 6 DONE; every DONE WHEN item holds
 
 ## Skills loaded
 - aidlc:building-ci-pipelines — plugin version 5.0.0
