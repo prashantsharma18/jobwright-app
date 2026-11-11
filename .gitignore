@@ -1,0 +1,7 @@
+# Build output, test results and installed packages: never committed
+bin/
+obj/
+TestResults/
+node_modules/
+.next/
+*.log
