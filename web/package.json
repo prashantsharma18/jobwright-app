@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -H 127.0.0.1 -p 55300",
+    "dev": "next dev -H 127.0.0.1 -p 15300",
     "build": "next build",
-    "start": "next start -H 127.0.0.1 -p 55300",
+    "start": "next start -H 127.0.0.1 -p 15300",
     "lint": "eslint .",
     "format:check": "prettier --check .",
     "typecheck": "next typegen && tsc --noEmit",

@@ -89,7 +89,7 @@ names_taken_port() {
 import socket, sys, time
 s = socket.socket()
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-s.bind(("127.0.0.1", 55432))
+s.bind(("127.0.0.1", 15432))
 s.listen()
 open(sys.argv[1], "w").close()
 time.sleep(30)
@@ -102,12 +102,12 @@ time.sleep(30)
   run_dev env
   kill "$listener" 2>/dev/null || true
   wait "$listener" 2>/dev/null || true
-  [ "$ready" -eq 0 ] && [ "$status" -ne 0 ] && grep -q 55432 <<<"$output" && started_nothing
+  [ "$ready" -eq 0 ] && [ "$status" -ne 0 ] && grep -q 15432 <<<"$output" && started_nothing
 }
 
 for test in "refuses while a k3d cluster runs:refuses_k3d" \
   "refuses when docker does not answer:refuses_silent_docker" \
-  "fails naming the port when 55432 is taken:names_taken_port"; do
+  "fails naming the port when 15432 is taken:names_taken_port"; do
   setup
   status=0
   output=""

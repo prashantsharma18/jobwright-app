@@ -14,10 +14,10 @@ cd "$(dirname "$0")/.."
 # new-system.md Pinned versions; digests resolved from the registries (progress-slice-0-ci.md, step 1).
 postgres_image="postgres:17.11@sha256:ff87138949ad9a46f32ff23bd6852b52ce024a13dffe9b4087be98292cdd3b4f"
 keycloak_image="quay.io/keycloak/keycloak:26.8.2@sha256:723b1d6e254c0fc96d5cffec860c7e0744d6a3277822b865bb538cf891575e41"
-postgres_port=55432
-keycloak_port=58080
-api_port=55080
-web_port=55300
+postgres_port=15432
+keycloak_port=18080
+api_port=15080
+web_port=15300
 
 fail() {
   echo "dev.sh: $*" >&2
