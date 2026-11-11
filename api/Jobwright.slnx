@@ -1,0 +1,25 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Jobwright.Admin/Jobwright.Admin.csproj" />
+    <Project Path="src/Jobwright.Api/Jobwright.Api.csproj" />
+    <Project Path="src/Jobwright.SharedKernel/Jobwright.SharedKernel.csproj" />
+    <Project Path="src/Jobwright.Worker/Jobwright.Worker.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/" />
+  <Folder Name="/src/Modules/Identity.Contracts/">
+    <Project Path="src/Modules/Identity.Contracts/Jobwright.Modules.Identity.Contracts.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Identity/">
+    <Project Path="src/Modules/Identity/Jobwright.Modules.Identity.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Tenancy.Contracts/">
+    <Project Path="src/Modules/Tenancy.Contracts/Jobwright.Modules.Tenancy.Contracts.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Tenancy/">
+    <Project Path="src/Modules/Tenancy/Jobwright.Modules.Tenancy.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Jobwright.Api.Tests/Jobwright.Api.Tests.csproj" />
+    <Project Path="tests/Jobwright.ArchitectureTests/Jobwright.ArchitectureTests.csproj" />
+  </Folder>
+</Solution>

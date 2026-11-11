@@ -43,7 +43,7 @@ layout (ADR 0001, `new-system.md` PATHS):
 <!-- On route G, a command written before slice 0 reads `(not yet run)` until `aidlc-onboard` confirms it. -->
 - Tests and lint, must pass before you report done: `scripts/check.sh lint && scripts/check.sh test` (not yet run)
 - Build (web, API and the three images): `scripts/check.sh build` (not yet run)
-- Run locally (PostgreSQL on 127.0.0.1:55432, Keycloak on 127.0.0.1:58080, then API and web; refuses while the k3d
+- Run locally (PostgreSQL on 127.0.0.1:15432, Keycloak on 127.0.0.1:18080, then API and web; refuses while the k3d
   cluster runs): `scripts/dev.sh` (not yet run)
 - Recipe check, after a recipe commit: `python3 scripts/check_recipe_commit.py <commit> --recipe "<approved command>" --count "<test count command>"`
 - Slice runner, for approved delegate slices only, one fresh session each: `python3 scripts/run_slices.py <KEY> <slice> [<slice> ...] [--part <n>]`;

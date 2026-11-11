@@ -1,0 +1,14 @@
+# The build context is the repository root (plan V5); only sources and manifests go in.
+.git
+.claude
+.pnpm-store
+plans
+**/.env*
+**/bin
+**/obj
+**/TestResults
+**/node_modules
+web/.next
+web/test-results
+web/playwright-report
+web/blob-report

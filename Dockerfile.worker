@@ -1,0 +1,26 @@
+# The worker: Jobwright.Worker on the .NET 10.0.14 runtime, with Jobwright.Admin beside it (ADR 0001), run as the
+# image's non-root user (APP_UID). The worker starts by default; the owner's guarded script starts the admin command:
+# dotnet /app/admin/Jobwright.Admin.dll
+# Build from the repository root, so global.json and dotnet-tools.json are in the context (plan V5):
+# docker build -f Dockerfile.worker .
+# Base digests: plans/NEW-jobwright/part-1/progress-slice-0-ci.md, "Image digests".
+
+FROM mcr.microsoft.com/dotnet/sdk:10.0.403@sha256:212fe4cb74627d5adf9817a4088906ae3edff1bd853bb27565d4b46731efe61e AS build
+# Tool telemetry off (plan Q13)
+ENV DOTNET_CLI_TELEMETRY_OPTOUT=1 \
+    TESTINGPLATFORM_TELEMETRY_OPTOUT=1
+WORKDIR /src
+COPY global.json dotnet-tools.json ./
+COPY api/Directory.Build.props api/Directory.Packages.props api/
+COPY api/src/ api/src/
+RUN dotnet restore api/src/Jobwright.Worker/Jobwright.Worker.csproj --locked-mode && \
+    dotnet restore api/src/Jobwright.Admin/Jobwright.Admin.csproj --locked-mode
+RUN dotnet publish api/src/Jobwright.Worker/Jobwright.Worker.csproj -c Release --no-restore -o /app/worker && \
+    dotnet publish api/src/Jobwright.Admin/Jobwright.Admin.csproj -c Release --no-restore -o /app/admin
+
+FROM mcr.microsoft.com/dotnet/runtime:10.0.14@sha256:4f1f30cf0bb4ab0c8b2daa84613051683456f8df4a9bf7c812e20d74962992ac
+COPY --from=build /app /app
+# The worker's content root (its appsettings.json) is the working directory
+WORKDIR /app/worker
+USER $APP_UID
+ENTRYPOINT ["dotnet", "Jobwright.Worker.dll"]
