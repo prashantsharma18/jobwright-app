@@ -162,6 +162,15 @@ Command: `docker buildx imagetools inspect <tag>` (Docker 29.4.2), 2026-11-11; t
   public repository, so U15 informs speed, not budget; GitHub Free offers branch protection on public repositories,
   so KL1 ("nothing is enforced") can be revisited; the code, plans and every CI log, the drill's red runs included,
   are world-readable. ci.yml needs no change: pull_request runs from forks get a read-only token and no secret
+- E12 (step 5) First pull-request run, https://github.com/prashantsharma18/jobwright-app/pull/1, run 42964529734 on
+  b084658: setup, test, build, browser and budget green; lint red at `scripts/check.sh lint`: "src/app/layout.tsx(19,50):
+  error TS2304: Cannot find name 'LayoutProps'." Cause: LayoutProps is a global type Next.js generates into .next/types
+  and next-env.d.ts (both ignored) during next dev or next build; every local typecheck ran on a tree an earlier build
+  had left them in, while CI's lint job checks out a clean tree and never builds. Reproduced on a clean `git worktree`
+  (same TS2304). Fix: web/package.json `typecheck` is `next typegen && tsc --noEmit`, the documented way to type-check
+  without a build (FACT, nextjs.org/docs/app/api-reference/cli/next, "next typegen", added v15.5.0). On the clean
+  worktree: typecheck exit 0, then the whole `scripts/check.sh lint` exit 0 (eslint, prettier, typegen and tsc, dotnet
+  format, which CI never reached). Not a drill: the gate caught a real fault
 - E5 (step 2) "10 KB" is read as 10,240 bytes; with 10,000 the budget would be 170,000. Confirmed by Prashant
   Sharma at checkpoint 2
 
@@ -195,6 +204,8 @@ Confirmed by Prashant Sharma, 2026-11-11 (restatement):
   mcr.microsoft.com/playwright:v1.65.0-noble@sha256:6e3fb709...273d scripts/check.sh browser|budget`
 
 ## Context gaps noticed (B5)
+- wrong: slice-0-skeleton's "lint green" (and this slice's) ran on a working tree with .next/types left by earlier
+  builds; a clean checkout failed typecheck (E12). Local checks before a push now include a clean worktree
 - wrong: bundle DONE WHEN says "dev.sh 2" while TESTS and DO 1 name three tests
 - gap: neither the plan nor requirements 9.5 says Windows' dynamic port exclusions (WinNAT) can hold the approved
   dev ports on a WSL2 machine with Docker Desktop (E1)
