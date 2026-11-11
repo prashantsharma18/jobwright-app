@@ -6,7 +6,7 @@ File: `plans/NEW-jobwright/part-1/progress-slice-0-ci.md`, committed on its own 
 then with the slice; the compliance reviewer and the slice runner read it.
 
 ```text
-STATUS      stopped: steps 0 to 5 done; the dev ports move (E1) needs plan v4 and bundle slice-0-ci v4 before step 6
+STATUS      doing   (step 6: local checks done; CI's run on pull request #1 waits for Prashant Sharma's push)
 MODE        hands-on
 ```
 
@@ -92,8 +92,36 @@ MODE        hands-on
         ':!plans'` empty); https://github.com/prashantsharma18/jobwright-app/actions/runs/42967216637 (9b5f3f9): all six green (setup 0:35, test 0:42, lint 0:43, budget 1:10,
         browser 1:14, build 1:52)
       Step 5 DONE: each of the six gates seen green, red for its own reason, green again (AC27, part)
-- [ ] 6 BLOCKED until bundle v4 (E1): every AGENTS.md command run locally, counts read; boundary check and self-review (aidlc-build steps 8, 9);
-      report; index row; this note and the index committed together
+- [ ] 6 Resumed 2026-11-11 under bundle v4 (approved at 6936a41), restatement confirmed by Prashant Sharma; needs
+      met: slice-0-ports done, recipe commit 366edc2 reviewed and approved by him (progress-slice-0-ports.md, 466adb7);
+      his AGENTS.md line 46 commit c54c922. Local part done at 466adb7, pinned toolchain on PATH:
+      - [x] Ports: `netsh.exe interface ipv4 show dynamicport protocol=tcp` start 49152, 16384 ports; `show
+            excludedportrange protocol=tcp` 20 ranges, the lowest from 49730, none holds 15432, 18080, 15080 or 15300;
+            no listener on them (`ss -ltn`, `netstat.exe -ano -p tcp`); no k3d-* or jobwright-* container
+      - [x] `scripts/check.sh lint && scripts/check.sh test` exit 0: web 2 passed; .NET total 2, failed 0, skipped 0;
+            `test_dev.sh: 3 passed, 0 failed`
+      - [x] `scripts/check.sh build` exit 0: next build compiled; dotnet build -c Release 0 Warning(s) 0 Error(s);
+            jobwright-web:local, jobwright-api:local, jobwright-worker:local built (never pushed)
+      - [x] `scripts/dev.sh`, the real run E1 left open, started in the background and stopped with SIGTERM (its trap
+            treats INT and TERM alike): API `GET http://127.0.0.1:15080/health/live` 200 "Healthy"; web
+            `GET http://127.0.0.1:15300/` 200 with `<h1 class="text-3xl font-semibold">Jobwright</h1>`; Keycloak
+            `GET http://127.0.0.1:18080/` 302 -> /admin/; PostgreSQL tcp 127.0.0.1:15432 open, pg_isready "accepting
+            connections"; `docker port`: 5432/tcp -> 127.0.0.1:15432, 8080/tcp -> 127.0.0.1:18080; host listeners
+            127.0.0.1 only on the four. After the stop: exit 130, no jobwright-dev-* container, the credentials
+            directory (mode 700 under /tmp) removed, no listener, no dev process. The log's only warning is E7's
+            HttpsRedirectionMiddleware line
+      - [x] `scripts/check.sh browser` 8 passed and `budget` 1 passed ("AC26 script bytes: 135165 in 5 responses
+            (budget 163840)"), exit 0, in the pinned Playwright image (command under Assumptions)
+      - [x] DONE WHEN's static checks: no old dev port outside plans/; `git grep -n "secrets\." .github` none; 24
+            `uses:` lines, each a 40-character SHA with `# vX.Y.Z`; every FROM (2 per Dockerfile) has a digest;
+            telemetry names: ci.yml and dev.sh all three, Dockerfile.web NEXT_TELEMETRY_DISABLED, Dockerfile.api and
+            Dockerfile.worker both .NET names; `actionlint -shellcheck= -pyflakes=` 1.7.12 exit 0; the only 0.0.0.0 is
+            Dockerfile.web's in-container HOSTNAME (step 3), no host bind
+      - [x] Boundary: `git diff --name-only main...HEAD` 90 files, all inside MAY CHANGE except AGENTS.md, changed only
+            by Prashant Sharma's c54c922; nothing on MUST NOT. This session wrote no code in step 6, so no new diff
+            to review (slice-0-ports' recipe commit was reviewed with that slice)
+      - [ ] Prashant Sharma pushes; CI's six gates green on the pull request's new last run (link to be recorded);
+            then STATUS done, the slice 0 row, this note and the index committed together
 
 ## Skills loaded
 - aidlc:building-ci-pipelines — plugin version 5.0.0
