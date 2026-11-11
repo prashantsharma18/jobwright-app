@@ -41,3 +41,13 @@ named. Not changed: `dotnet test api/Jobwright.slnx` in the map, which the probe
    to the workspace root.
 3. **The four `(CI also checks this)` claims.** Three were not true today (the guard, the schema check, the chart
    test); the diff says they are planned. Confirm the wording, or name where each check comes from.
+
+## Dispositions (2026-11-11)
+Decided by Claude at Prashant Sharma's instruction; he may overturn any of them. Source:
+`../stories/NEW-jobwright/decisions-2026-11-11.md`, decisions 1 to 3.
+
+| # | Disposition | Where it landed |
+|---|---|---|
+| 1 | Yes: for any change under `web/`, the "must pass before you report done" line adds `scripts/check.sh browser` and `budget`, run in the pinned Playwright image | `AGENTS.md` Commands, branch `docs/NEW-jobwright-part-1-decisions` |
+| 2 | Yes, through spec amendment 2 (approved 2026-11-11, spec v4, ADR 0014): `main` requires setup, lint, test, build, browser and budget, administrators included, no review (KL2); `STAGING_TOKEN` moves to the `main`-only environment `staging-release` (S2). Prashant Sharma applied both settings by hand | `AGENTS.md` How work runs here and the Workflows standard, same branch; the GitHub settings |
+| 3 | Confirm the merged wording: `main` at f99b998 already says "No CI check yet", "it checks nothing until a module has a type, D6" and "CI will check this: … planned". The slice that adds each check changes it to "CI also checks this" | Nothing to change |
