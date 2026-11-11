@@ -11,7 +11,7 @@ cd "$(dirname "$0")/.."
 
 case "${1:-}" in
   test)
-    pnpm -C web test && dotnet test api/Jobwright.slnx
+    pnpm -C web test && dotnet test api/Jobwright.slnx && scripts/tests/test_dev.sh
     ;;
   lint)
     pnpm -C web lint && pnpm -C web format:check && pnpm -C web typecheck &&
