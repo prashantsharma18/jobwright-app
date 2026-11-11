@@ -5,3 +5,8 @@ TestResults/
 node_modules/
 .next/
 *.log
+
+# A pnpm store created inside the repository (a pnpm run in a container; slice-0-ci E2)
+.pnpm-store/
+# Environment files hold local secrets
+.env*
