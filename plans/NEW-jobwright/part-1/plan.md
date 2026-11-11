@@ -409,7 +409,11 @@ OPEN       Q1 DECIDED (by Claude at Prashant Sharma's instruction, 2026-11-10): 
               (requirements 9.1, "Telemetry: OpenTelemetry to the owner's lab collector"). No dependency changes.
               A person's own shell is theirs to set; scripts/dev.sh (slice-0-ci) inherits the variables only if it
               sources them, so slice-0-ci step 1 exports them there too
-           Q14 (v4) new-system.md v5 COMMANDS (line 69) says dev.sh starts its containers on 127.0.0.1:55432 and
+           Q14 CLOSED (2026-11-11): new-system.md v6 APPROVED by Prashant Sharma (design approver), root commit
+              c3d4ea2, naming 127.0.0.1:15432, 18080, 15080 and 15300 in COMMANDS, with the note on Windows' dynamic
+              port exclusions; the code and new-system.md agree on the dev ports, and the pull request leaving draft
+              is no longer blocked by Q14. The question as v4 put it:
+              (v4) new-system.md v5 COMMANDS (line 69) says dev.sh starts its containers on 127.0.0.1:55432 and
               127.0.0.1:58080; plan v4 moves them to 15432 and 18080, and the API and the web app to 15080 and 15300
               (K4, decided by Prashant Sharma, 2026-11-11, E1) -> the workspace root drafts new-system.md v6:
               COMMANDS names 127.0.0.1:15432 and 127.0.0.1:18080 and says dev.sh runs the API on 127.0.0.1:15080 and
