@@ -116,7 +116,9 @@ Pattern to follow: named where slice 0 has one; the part 3 slice that first appl
   planned with the chart.)
 - Bind every port to 127.0.0.1, never 3000, 3001, 4318, 4444, 9090 or 9091: the owner's lab holds them
   (requirements 9.5).
-- Agents never push; Prashant Sharma pushes (spec v2, A2). Commit as
+- Agents may push only their own feature branch, plainly: never `main`, a tag, or with force (ADR 0028's leave;
+  Prashant Sharma, 2026-11-23, `../stories/NEW-jobwright/decisions-2026-11-23.md`). Prashant Sharma opens and merges
+  every pull request. Commit as
   `prashantsharma18 <6386481+prashantsharma18@users.noreply.github.com>`, never a work email (requirements 9.2).
 - Write only in this repository. `../stories/` is readable for the story's documents; the workspace root updates them.
 - Read another repository's contract at its release tag, never a copy.
